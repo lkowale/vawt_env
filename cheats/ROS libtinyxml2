@@ -1,0 +1,6 @@
+cd /home/aa/anaconda3/envs/35_ros/lib
+readlink -f libtinyxml2.so.7
+# make hard link to library
+cd /home/aa/anaconda3/envs/vawt_35/lib
+
+sudo ln libtinyxml2.so.7 libssl.so.1.0.0

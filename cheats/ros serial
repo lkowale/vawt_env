@@ -1,0 +1,4 @@
+http://wiki.ros.org/rosserial_arduino/Tutorials
+
+rosrun rosserial_python serial_node.py /dev/ttyUSB0
+rostopic pub toggle_led std_msgs/Empty --once

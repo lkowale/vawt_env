@@ -1,0 +1,222 @@
+<?xml version="1.0"?>
+<robot name="vawt_1">
+
+  <link name="base_link">
+
+    <visual>
+      <geometry>
+	    <box size="2 2 0.1" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="yellow">
+        <color rgba="1 1 0 0.2"/>
+      </material>
+    </visual>
+
+    <collision>
+      <geometry>
+	    <box size="2 2 0.1" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+  </link>
+
+  <joint name="main_shaft_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="main_shaft"/>
+    <origin xyz="0 0 0.05"/>
+    <axis xyz="0 0 1" />
+    <dynamics damping="50" friction="1"/>
+  </joint>
+
+  <link name="main_shaft">
+    <visual>
+      <geometry>
+	<cylinder length="2" radius="0.1"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 1"/>
+      <material name="blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+	<cylinder length="2" radius="0.1"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.09"/>
+    </collision>
+    <inertial>
+	<mass value="1"/>
+	<inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+  </link>
+
+  <joint name="blade_1_bottom_strut_joint" type="fixed">
+    <parent link="main_shaft"/>
+    <child link="blade_1_bottom_strut"/>
+    <origin xyz="0.1 0 0.66"/>
+  </joint>
+
+  <link name="blade_1_bottom_strut">
+    <visual>
+      <geometry>
+	    <box size="0.1 1 0.05" />
+      </geometry>
+      <origin rpy="0 0 1.57075" xyz="0.5 0 0"/>
+      <material name="red">
+        <color rgba="1 0 0 0.2"/>
+      </material>
+    </visual>
+	</link>
+
+  <joint name="blade_1_joint" type="revolute">
+    <parent link="blade_1_bottom_strut"/>
+    <child link="blade_1"/>
+    <origin xyz="1 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1" />
+    <limit effort="300" velocity="0.1" lower="-3.14" upper="3.14"/>
+  </joint>
+
+  <link name="blade_1">
+    <visual>
+      <geometry>
+	    <box size="0.01 0.2 2" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.33"/>
+      <material name="green">
+        <color rgba="0 1 0 0.8"/>
+      </material>
+    </visual>
+	</link>
+
+  <joint name="blade_1_upper_strut_joint" type="fixed">
+    <parent link="main_shaft"/>
+    <child link="blade_1_upper_strut"/>
+    <origin xyz="0.1 0 1.32"/>
+  </joint>
+
+  <link name="blade_1_upper_strut">
+    <visual>
+      <geometry>
+	    <box size="0.1 1 0.05" />
+      </geometry>
+      <origin rpy="0 0 1.57075" xyz="0.5 0 0"/>
+      <material name="red">
+        <color rgba="1 0 0 0.2"/>
+      </material>
+    </visual>
+	</link>
+
+  <joint name="blade_2_bottom_strut_joint" type="fixed">
+    <parent link="main_shaft"/>
+    <child link="blade_2_bottom_strut"/>
+    <origin xyz="-0.1 0 0.66" rpy="0 0 3.14"/>
+  </joint>
+
+  <link name="blade_2_bottom_strut">
+    <visual>
+      <geometry>
+	    <box size="0.1 1 0.05" />
+      </geometry>
+      <origin rpy="0 0 1.57075" xyz="0.5 0 0"/>
+      <material name="red">
+        <color rgba="1 0 0 0.2"/>
+      </material>
+    </visual>
+	</link>
+
+  <joint name="blade_2_joint" type="revolute">
+    <parent link="blade_2_bottom_strut"/>
+    <child link="blade_2"/>
+    <origin xyz="1 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1" />
+    <limit effort="300" velocity="0.1" lower="-3.14" upper="3.14"/>
+  </joint>
+
+  <link name="blade_2">
+    <visual>
+      <geometry>
+	    <box size="0.01 0.2 2" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.33"/>
+      <material name="green">
+        <color rgba="0 1 0 0.8"/>
+      </material>
+    </visual>
+	</link>
+
+  <joint name="blade_2_upper_strut_joint" type="fixed">
+    <parent link="main_shaft"/>
+    <child link="blade_2_upper_strut"/>
+    <origin xyz="-0.1 0 1.32" rpy="0 0 3.14"/>
+  </joint>
+
+  <link name="blade_2_upper_strut">
+    <visual>
+      <geometry>
+	    <box size="0.1 1 0.05" />
+      </geometry>
+      <origin rpy="0 0 1.57075" xyz="0.5 0 0"/>
+      <material name="red">
+        <color rgba="1 0 0 0.2"/>
+      </material>
+    </visual>
+	</link>
+
+  <joint name="wind_speed" type="revolute">
+    <parent link="main_shaft"/>
+    <child link="wind_speed_imaginary_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="300" velocity="0.1" lower="0" upper="20"/>
+  </joint>
+
+   <joint name="wind_direction" type="revolute">
+    <parent link="main_shaft"/>
+    <child link="wind_direction_imaginary_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="300" velocity="0.1" lower="-3.14" upper="3.14"/>
+  </joint>
+
+  <joint name="rotor_speed" type="revolute">
+    <parent link="main_shaft"/>
+    <child link="rotor_speed_imaginary_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <limit effort="300" velocity="0.1" lower="0" upper="20"/>
+  </joint>
+
+  <link name="wind_speed_imaginary_link">
+    <visual>
+      <geometry>
+	    <box size="0.1 0.1 0.1" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="invisible">
+        <color rgba="0 0 0 0"/>
+      </material>
+    </visual>
+	</link>
+
+  <link name="wind_direction_imaginary_link">
+    <visual>
+      <geometry>
+	    <box size="0.1 0.1 0.1" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="invisible">
+        <color rgba="0 0 0 0"/>
+      </material>
+    </visual>
+
+	</link>
+	  <link name="rotor_speed_imaginary_link">
+    <visual>
+      <geometry>
+	    <box size="0.1 0.1 0.1" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="invisible">
+        <color rgba="0 0 0 0"/>
+      </material>
+    </visual>
+	</link>
+</robot>

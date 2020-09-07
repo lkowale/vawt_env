@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<!-- rosrun xacro xacro bot_macro.xacro > bot_macro_generated.urdf -->
+<robot name="bot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+
+  <xacro:include filename="/home/aa/vawt_env/learn/xacro/box_link.xacro" />
+
+  <!-- Base Link "width height depth xyz rpy material mass"-->
+  <xacro:box_link/>
+
+
+</robot>

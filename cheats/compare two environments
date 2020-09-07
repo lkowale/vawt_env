@@ -1,0 +1,29 @@
+conda list -n 35_ros --export > 35_ros-packages.txt
+conda list -n vawt_35 --export > vawt_35-packages.txt
+diff 35_ros-packages.txt vawt_35-packages.txt
+
+conda list -n an_env --export > an_env-packages.txt
+conda list -n vawt_env --export > vawt_env-packages.txt
+diff an_env-packages.txt vawt_env-packages.txt
+
+#show environment vars
+env
+
+source activate myenv
+
+export PATH="/home/aa/anaconda3/bin:$PATH"
+source activate 35_ros
+env > 35_ros_env.txt
+source deactivate
+source activate vawt_35
+env > vawt_35_env.txt
+diff 35_ros_env.txt vawt_35_env.txt
+
+
+
+before: doesn't work
+/home/aa/anaconda3/envs/vawt_35/bin:/home/aa/anaconda3/condabin:/opt/ros/kinetic/bin:
+after: works
+/home/aa/anaconda3/condabin:/opt/ros/kinetic/bin:
+
+LD_LIBRARY_PATH=/opt/ros/kinetic/lib:/opt/ros/kinetic/lib/x86_64-linux-gnu:/home/aa/vawt_env/devel/lib:/usr/local/lib

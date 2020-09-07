@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<!-- Revolute-Revolute Manipulator -->
+<robot name="vawt_1" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Constants for robot dimensions -->
+  <xacro:property name="PI" value="3.1415926535897931"/>
+  <xacro:property name="mass" value="1" /> <!-- arbitrary value for mass -->
+
+  <xacro:property name="height2" value="1" /> <!-- Link 2 -->
+  <xacro:property name="height3" value="1" /> <!-- Link 3 -->
+  <xacro:property name="camera_link" value="0.05" /> <!-- Size of square 'camera' box -->
+  <xacro:property name="axel_offset" value="0.05" /> <!-- Space btw top of beam and the each joint -->
+
+  <!-- Import all Gazebo-customization elements, including Gazebo colors -->
+  <xacro:include filename="$(find vawt_1)/urdf/vawt_1.gazebo" />
+  <!-- Import Rviz colors -->
+  <xacro:include filename="$(find vawt_1)/urdf/materials.xacro" />
+
+
+  <!-- Used for fixing robot to Gazebo 'base_link' -->
+  <link name="world"/>
+
+  <joint name="fixed" type="fixed">
+    <parent link="world"/>
+    <child link="base"/>
+  </joint>
+
+  <!-- Base Link -->
+  <xacro:property name="base_width" value="2" /> <!-- x  -->
+  <xacro:property name="base_height" value="2" /> <!-- y  -->
+  <xacro:property name="base_depth" value="0.1" /> <!-- z -->
+
+  <link name="base">
+    <collision>
+      <origin xyz="0 0 ${base_depth/2}" rpy="0 0 0"/>
+      <geometry>
+	    <box size="${base_width} ${base_height} ${base_depth}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 ${base_depth/2}" rpy="0 0 0"/>
+      <geometry>
+	    <box size="${base_width} ${base_height} ${base_depth}"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 ${base_depth/2}" rpy="0 0 0"/>
+      <mass value="${mass}"/>
+      <inertia
+        ixx="${mass / 12.0 * (base_height*base_height + base_depth*base_depth)}" ixy="0.0" ixz="0.0"
+        iyy="${mass / 12.0 * (base_width*base_width + base_depth*base_depth)}" iyz="0.0"
+        izz="${mass / 12.0 * (base_width*base_width + base_height*base_height)}"/>
+      </inertial>
+  </link>
+
+  <joint name="main_shaft_joint" type="continuous">
+    <parent link="base"/>
+    <child link="main_shaft"/>
+    <origin xyz="0 0 ${base_depth}"/>
+    <axis xyz="0 0 1" />
+    <dynamics damping="50" friction="1"/>
+  </joint>
+
+  <!-- main_shaft Link -->
+  <xacro:property name="radius" value="0.1" /> <!-- r  -->
+  <xacro:property name="length" value="2" /> <!-- l  -->
+
+  <link name="main_shaft">
+    <collision>
+      <origin xyz="0 0 ${length/2}" rpy="0 0 0"/>
+      <geometry>
+	    <cylinder length="${length}" radius="${radius}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 ${length/2}" rpy="0 0 0"/>
+      <geometry>
+	    <cylinder length="${length}" radius="${radius}"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 ${length/2}" rpy="0 0 0"/>
+      <mass value="${mass}"/>
+      <inertia
+        ixx="${mass / 12.0 * (3*radius*radius + length*length)}" ixy="0.0" ixz="0.0"
+        iyy="${mass / 12.0 * (3*radius*radius + length*length)}" iyz="0.0"
+        izz="${mass / 2.0 * radius*radius}"/>
+      </inertial>
+  </link>
+
+  <joint name="blade_1_bottom_strut_joint" type="fixed">
+    <parent link="main_shaft"/>
+    <child link="b1bs"/>
+    <origin xyz="${radius} 0 ${length/3}"/>
+  </joint>
+
+  <!-- blade_1_bottom_strut Link -->
+  <xacro:property name="width" value="2" /> <!-- x  -->
+  <xacro:property name="height" value="2" /> <!-- y  -->
+  <xacro:property name="depth" value="0.1" /> <!-- z -->
+
+  <link name="b1bs">
+    <collision>
+      <origin xyz="0 0 ${depth/2}" rpy="0 0 0"/>
+      <geometry>
+	    <box size="${width} ${height} ${depth}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 ${depth/2}" rpy="0 0 0"/>
+      <geometry>
+	    <box size="${width} ${height} ${depth}"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 ${depth/2}" rpy="0 0 0"/>
+      <mass value="${mass}"/>
+      <inertia
+        ixx="${mass / 12.0 * (height*height + depth*depth)}" ixy="0.0" ixz="0.0"
+        iyy="${mass / 12.0 * (width*width + depth*depth)}" iyz="0.0"
+        izz="${mass / 12.0 * (width*width + height*height)}"/>
+      </inertial>
+  </link>
+
+</robot>

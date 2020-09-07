@@ -1,0 +1,4 @@
+<launch>
+    <include file="$(find vawt_1)/launch/view_demo_vawt_1.launch" />
+    <include file="$(find vawt_1)/launch/wind_simulator.launch" />
+</launch>

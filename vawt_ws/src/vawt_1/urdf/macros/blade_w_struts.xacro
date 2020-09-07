@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!-- Revolute-Revolute Manipulator -->
+<robot name="vawt_1" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+
+  <!-- Import box link macro -->
+  <xacro:include filename="$(find vawt_1)/urdf/macros/box_link.xacro" />
+  <!-- Import cylinder link macro -->
+  <xacro:include filename="$(find vawt_1)/urdf/macros/cylinder_link.xacro" />
+
+  <xacro:property name="strut_width" value="0.05" />
+  <xacro:property name="strut_height" value="0.1" />
+  <xacro:property name="strut_depth" value="1" />
+  
+  <!-- Blade with struts macro -->
+  <!-- params="blade_name parent_name shaft_radius shaft_length strut_size blade_offset"-->  
+  <xacro:macro name="blade_w_struts"
+  params="blade_name parent_name shaft_radius shaft_length blade_offset">
+
+    <!-- bottom strut joint and link -->
+    <xacro:property name="strut_name" value="bottom" />
+    <joint name="${blade_name}_${strut_name}_strut_joint" type="fixed">
+      <parent link="${parent_name}"/>
+      <child link="${blade_name}_${strut_name}_strut"/>
+      <origin xyz="0 0 ${shaft_length/3}" rpy="0 0 ${blade_offset}"/>
+    </joint>
+
+    <xacro:box_link link_name="${blade_name}_${strut_name}_strut" width="${strut_width}" height="${strut_height}" depth="${strut_depth}"
+    xyz="${shaft_radius + strut_depth/2} 0 0" rpy="0 ${pi/2} 0" material="orange" mass="${mass}"/>
+
+    <!-- upper strut joint and link -->
+    <xacro:property name="strut_name" value="upper" />
+    <joint name="${blade_name}_${strut_name}_strut_joint" type="fixed">
+      <parent link="${parent_name}"/>
+      <child link="${blade_name}_${strut_name}_strut"/>
+      <origin xyz="0 0 ${2*shaft_length/3}" rpy="0 0 ${blade_offset}"/>
+    </joint>
+
+    <xacro:box_link link_name="${blade_name}_${strut_name}_strut" width="${strut_width}" height="${strut_height}" depth="${strut_depth}"
+    xyz="${shaft_radius + strut_depth/2} 0 0" rpy="0 ${pi/2} 0" material="orange" mass="${mass}"/>
+
+    <!-- blade joint and link -->
+    <xacro:property name="blade_width" value="0.2" />
+    <xacro:property name="blade_height" value="0.01" />
+    <xacro:property name="blade_depth" value="2" />
+    
+    <joint name="${blade_name}_joint" type="revolute">
+      <parent link="${blade_name}_bottom_strut"/>
+      <child link="${blade_name}"/>
+      <origin xyz="${shaft_radius + strut_depth} 0 0" rpy="0 0 0"/>
+      <axis xyz="0 0 1" />
+      <limit effort="300" velocity="0.1" lower="-3.14" upper="3.14"/>
+    </joint>
+
+    <xacro:box_link link_name="${blade_name}" width="${blade_width}" height="${blade_height}" depth="${blade_depth}"
+      xyz="0 0 ${blade_depth/6}" rpy="0 0 ${pi/2}" material="green" mass="${mass}"/>
+    
+  </xacro:macro>
+</robot>

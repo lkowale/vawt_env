@@ -1,0 +1,5 @@
+<launch>
+<arg name="rotor_simulator" />
+<node name="rotor" pkg="sensors_simulator" type="rotor.py" />
+<node name="forces_markers" pkg="visualize" type="forces_markers.py" />
+</launch>

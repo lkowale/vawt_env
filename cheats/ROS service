@@ -1,0 +1,17 @@
+# http://wiki.ros.org/ROS/Tutorials/CreatingMsgAndSrv#Creating_a_srv
+cd image_transport_ws/src/
+catkin_create_pkg robot_arm rospy
+roscd robot_arm
+mkdir msg
+echo "string[] aspects" > msg/Aspects.msg
+
+Open package.xml, and make sure these two lines are in it and uncommented:
+
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>
+  # and many others to be added  see link above
+
+ #Creating a srv
+ roscd robot_arm
+ mkdir srv
+ roscp rospy_tutorials AddTwoInts.srv srv/AddTwoInts.srv

@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<!-- rosrun xacro xacro mrm.xacro > mrm_generated.urdf -->
+<robot name="mrm" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- BGN - Include -->
+  <xacro:include filename="/home/aa/vawt_env/learn/mrm_xacro/links_joints.xacro" />
+  <!-- END - Include -->
+
+  <!-- BGN - Robot description -->
+  <xacro:m_link_box name="base_link"
+              origin_rpy="0 0 0" origin_xyz="0 0 0"
+              size="1 1 1" />
+
+  <xacro:m_joint name="base_link_01" type="revolute"
+           axis_xyz="0 0 1"
+           origin_rpy="0 0 0" origin_xyz="0 0 0.5"
+           parent="base_link" child="link_01" />
+
+  <xacro:m_link_cylinder name="link_01"
+              origin_rpy="0 0 0" origin_xyz="0 0 0.2"
+              length="0.4" radius="0.35" />
+  <!-- END - Robot description -->
+
+</robot>

@@ -1,0 +1,27 @@
+# after /home/aa/Downloads/Mastering ROS for Robotics Programming - Lentin Joseph.PDF
+# create package
+catkin_create_pkg vawt_1_description_pkg roscpp tf geometry_msgs urdf rviz xacro
+mkdir urdf
+mkdir meshes
+mkdir launch
+# create urdf file
+check_urdf robot_description.urdf
+urdf_to_graphiz robot_description.urdf
+evince vawt_1.pdf
+# create launch file
+roslaunch vawt_1_description_pkg view_demo.launch
+
+# origin
+
+# of box or cylinder is always the middle point of it
+
+# of the first, base_link is in refer to whole model "the main" frame
+# writing <origin rpy="0 0 0" xyz="1 0 0"/> you are saing that the point where origin of this link will be
+
+#of joint is written in refer to "the main" frame and it says in which point the child link will be connected to parent
+
+#of child link says where its origin will be in refer to joint Coordinate system
+
+#of child joint of child link refers to links parent coordinate system
+
+# urdf online editor http://www.mymodelrobot.appspot.com/

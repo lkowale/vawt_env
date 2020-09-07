@@ -1,0 +1,5 @@
+<launch>
+<arg name="wind_simulator" />
+<node name="wind" pkg="sensors_simulator" type="wind.py" />
+<node name="wind_marker" pkg="visualize" type="wind_marker.py" />
+</launch>

@@ -1,0 +1,22 @@
+# create catkin workspace
+# begin in appropriate directory
+mkdir src
+catkin_make
+# check if PATH is set
+echo $ROS_PACKAGE_PATH
+
+#create node
+cd ~/vawt_env/src
+catkin_create_pkg vawt_1 std_msgs rospy roscpp
+cd ~/vawt_env
+catkin_make
+
+#run image publisher
+rosrun image_publisher  my_streaming_publisher
+
+cd /home/aa/an_env
+git clone https://github.com/fkie/multimaster_fkie.git multimaster
+rosrun node_manager_fkie node_manager
+sudo apt-get install ros-kinetic-multimaster-fkie
+sudo apt-get remove ros-kinetic-multimaster-fkie
+sudo apt autoremove ros-kinetic-multimaster-fkie

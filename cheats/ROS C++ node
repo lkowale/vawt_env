@@ -1,0 +1,27 @@
+http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29
+
+write a src/something.cpp file
+
+add to CMakeLists.txt:
+
+add_executable(listener src/listener.cpp)
+target_link_libraries(listener ${catkin_LIBRARIES})
+add_dependencies(listener beginner_tutorials_generate_messages_cpp)
+
+add_executable(wind_marker src/wind_marker.cpp)
+target_link_libraries(wind_marker ${catkin_LIBRARIES})
+add_dependencies(wind_marker visualize)
+
+add_executable(simple_pub src/simple_pub.cpp)
+target_link_libraries(simple_pub ${catkin_LIBRARIES})
+add_dependencies(simple_pub visualize)
+
+PATH=/opt/ros/kinetic/bin:/home/aa/bin:/home/aa/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/lib/jvm/java-8-oracle/bin:/usr/lib/jvm/java-8-oracle/db/bin:/usr/lib/jvm/java-8-oracle/jre/bin:/opt/android-studio/bin:/usr/local/cuda/bin
+CMAKE_PREFIX_PATH=/opt/ros/kinetic:/home/aa/vawt_env/devel
+CMAKE_PREFIX_PATH=/opt/ros/kinetic:/home/aa/catkin_ws/devel
+echo $CMAKE_PREFIX_PATH
+
+rosrun visualize wind
+rosrun image_publisher simple_pub
+rosrun visualize simple_pub
+source ~/vawt_env/devel/setup.bash

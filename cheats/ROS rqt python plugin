@@ -1,0 +1,48 @@
+http://wiki.ros.org/rqt/Tutorials/Create%20your%20new%20rqt%20plugin
+
+
+cd ~/an_env/src
+catkin_create_pkg rqt_mypkg rospy rqt_gui rqt_gui_py
+
+create plugin.xml file
+Write a plugin code http://wiki.ros.org/rqt/Tutorials/Writing%20a%20Python%20Plugin
+
+https://github.com/how-chen/rqt_mypkg
+% roscd rqt_mypkg
+% mkdir resource
+
+within the resource folder, create a file called 'MyPlugin.ui'
+
+% roscd rqt_mypkg
+% mkdir -p src/rqt_mypkg
+
+create init.py in src/rqt_mypkg
+
+% cd src/rqt_mypkg/
+% touch __init__.py
+
+create my_module.py
+
+Create a 'scripts' folder
+
+% roscd rqt_mypkg
+% mkdir scripts
+
+inside the 'scripts' folder, make a file called rqt_mypkg
+
+navigate to the base directory
+
+roscd rqt_mypkg
+
+create setup.py script with the following:
+
+edit the CMakeLists
+
+Specify the main execution script
+
+% roscd rqt_mypkg
+% cd scripts
+% chmod +x rqt_mypkg
+
+rqt --force-discover
+rosrun rqt_mypkg rqt_mypkg

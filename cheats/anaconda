@@ -1,0 +1,22 @@
+https://docs.conda.io/projects/conda/en/4.6.0/_downloads/52a95608c49671267e40c689e0bc00ca/conda-cheatsheet.pdf
+
+export PATH="/home/aa/anaconda3/bin:$PATH"
+
+conda env list
+
+conda env remove -n ENV_NAME
+
+source activate myenv
+
+source deactivate
+
+conda install -n <env_name> <package>
+
+List all packages and versions installed in active environment
+conda list
+
+Save environment to a text file
+conda list --explicit > vawt_env_conda.txt
+
+Create environment from a text file
+conda env create --file vawt_env_conda.txt
