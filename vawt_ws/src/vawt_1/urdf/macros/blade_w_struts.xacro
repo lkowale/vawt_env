@@ -52,6 +52,17 @@
       <limit effort="300" velocity="0.1" lower="-3.14" upper="3.14"/>
     </joint>
 
+    <transmission name="${blade_name}_transmission">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${blade_name}_joint">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${blade_name}_motor">
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
     <xacro:box_link link_name="${blade_name}" width="${blade_width}" height="${blade_height}" depth="${blade_depth}"
       xyz="0 0 ${blade_depth/6}" rpy="0 0 ${pi/2}" material="green" mass="${mass}"/>
     

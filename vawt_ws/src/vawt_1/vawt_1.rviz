@@ -62,37 +62,7 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        blade_1:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        blade_1_bottom_strut:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        blade_1_upper_strut:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        blade_2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        blade_2_bottom_strut:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        blade_2_upper_strut:
+        base:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -102,21 +72,10 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        rotor_speed_imaginary_link:
+        world:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: true
-        wind_direction_imaginary_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        wind_speed_imaginary_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
       Name: RobotModel
       Robot Description: robot_description
       TF Prefix: ""
@@ -128,14 +87,14 @@ Visualization Manager:
       Marker Topic: /wind/marker
       Name: Marker
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: base_link
+    Fixed Frame: world
     Frame Rate: 30
   Name: root
   Tools:
@@ -196,4 +155,4 @@ Window Geometry:
     collapsed: false
   Width: 1200
   X: 376
-  Y: 99
+  Y: 69

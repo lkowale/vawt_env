@@ -14,20 +14,6 @@
     <material>Gazebo/Orange</material>
   </gazebo>
 
-  <!-- blade_1-->
-  <gazebo reference="blade_1">
-    <mu1>0.2</mu1>
-    <mu2>0.2</mu2>
-    <material>Gazebo/Red</material>
-  </gazebo>
-
-  <!-- blade_2-->
-  <gazebo reference="blade_2">
-    <mu1>0.2</mu1>
-    <mu2>0.2</mu2>
-    <material>Gazebo/Black</material>
-  </gazebo>
-
   <!-- main_shaft -->
   <gazebo reference="main_shaft">
     <mu1>0.2</mu1>
