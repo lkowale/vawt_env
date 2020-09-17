@@ -1,0 +1,6 @@
+vawt_1:
+  hardware_interface:
+     loop_hz: 10 # hz
+     joints:
+       - blade_1_joint
+       - blade_2_joint
