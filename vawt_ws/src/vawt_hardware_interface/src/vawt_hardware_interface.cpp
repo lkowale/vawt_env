@@ -29,7 +29,6 @@ namespace vawt_hardware_interface
 
     void VAWTHardwareInterface::init() {
         // Get joint names
-        //nh_.setParam("/vawt_1/hardware_interface/joints", "blade_1_joint blade_2_joint");
         nh_.getParam("/vawt_1/hardware_interface/joints", joint_names_);
          //joint_names_="blade_1_joint blade_2_joint";
         num_joints_ = joint_names_.size();
@@ -88,20 +87,13 @@ namespace vawt_hardware_interface
         positionJointSoftLimitsInterface.enforceLimits(elapsed_time);
         for (int i = 0; i < num_joints_; i++) {
         /*
-            double set_position = joint_position_command_[i];
-            joint_position_[i] = set_position;
-            std_msgs::UInt8 msg;
-            int degree = set_position * (180/3.14);
-            msg.data = degree;
-            command_publisher.publish(msg);
-          */
-            //float command = 1.0;
             std_msgs::Float32 msg;
-            float command = joint_position_command_[i];
+            double command = joint_position_command_[i];
             msg.data = command;
             servo_position_[i] = command;
             command_publisher.publish(msg);
-            //ROS_INFO("Got command %f", joint_position_command_[i]);
+          */
+            ROS_INFO("Got %s joint_position_command_ %f joint_effort_command_[i] %f", joint_names_[i].c_str(), joint_position_command_[i],joint_effort_command_[i]);
         }
     }
 }

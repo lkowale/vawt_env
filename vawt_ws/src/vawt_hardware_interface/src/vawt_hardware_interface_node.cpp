@@ -2,15 +2,7 @@
 #include <ros/callback_queue.h>
 int main(int argc, char** argv)
 {
-/*
-    ros::init(argc, argv, "vawt_hardware_interface");
-    ros::NodeHandle nh;
-    vawt_hardware_interface::VAWTHardwareInterface vhi(nh);
-    ros::AsyncSpinner spinner(4);
-    spinner.start();
-    ros::waitForShutdown();
-    return 0;
-    */
+
     ros::init(argc, argv, "vawt_hardware_interface");
     ros::CallbackQueue ros_queue;
 
