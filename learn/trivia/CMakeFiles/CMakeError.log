@@ -1,0 +1,65 @@
+Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /home/aa/vawt_env/learn/trivia/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_c9565/fast && /usr/bin/make -f CMakeFiles/cmTC_c9565.dir/build.make CMakeFiles/cmTC_c9565.dir/build
+make[1]: Entering directory '/home/aa/vawt_env/learn/trivia/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_c9565.dir/src.c.o
+/home/aa/anaconda3/envs/vawt_35/bin/x86_64-conda_cos6-linux-gnu-cc   -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/aa/anaconda3/envs/vawt_35/include -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_c9565.dir/src.c.o   -c /home/aa/vawt_env/learn/trivia/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_c9565
+/home/aa/anaconda3/envs/vawt_35/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c9565.dir/link.txt --verbose=1
+/home/aa/anaconda3/envs/vawt_35/bin/x86_64-conda_cos6-linux-gnu-cc -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/aa/anaconda3/envs/vawt_35/include -DCMAKE_HAVE_LIBC_PTHREAD  -Wl,-O2 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,--disable-new-dtags -Wl,--gc-sections -Wl,-rpath,/home/aa/anaconda3/envs/vawt_35/lib -Wl,-rpath-link,/home/aa/anaconda3/envs/vawt_35/lib -L/home/aa/anaconda3/envs/vawt_35/lib  -rdynamic CMakeFiles/cmTC_c9565.dir/src.c.o  -o cmTC_c9565 
+/home/aa/anaconda3/envs/vawt_35/bin/../lib/gcc/x86_64-conda_cos6-linux-gnu/7.5.0/../../../../x86_64-conda_cos6-linux-gnu/bin/ld: CMakeFiles/cmTC_c9565.dir/src.c.o: in function `main':
+src.c:(.text.startup.main+0x24): undefined reference to `pthread_create'
+/home/aa/anaconda3/envs/vawt_35/bin/../lib/gcc/x86_64-conda_cos6-linux-gnu/7.5.0/../../../../x86_64-conda_cos6-linux-gnu/bin/ld: src.c:(.text.startup.main+0x2e): undefined reference to `pthread_detach'
+/home/aa/anaconda3/envs/vawt_35/bin/../lib/gcc/x86_64-conda_cos6-linux-gnu/7.5.0/../../../../x86_64-conda_cos6-linux-gnu/bin/ld: src.c:(.text.startup.main+0x38): undefined reference to `pthread_cancel'
+/home/aa/anaconda3/envs/vawt_35/bin/../lib/gcc/x86_64-conda_cos6-linux-gnu/7.5.0/../../../../x86_64-conda_cos6-linux-gnu/bin/ld: src.c:(.text.startup.main+0x44): undefined reference to `pthread_join'
+/home/aa/anaconda3/envs/vawt_35/bin/../lib/gcc/x86_64-conda_cos6-linux-gnu/7.5.0/../../../../x86_64-conda_cos6-linux-gnu/bin/ld: src.c:(.text.startup.main+0x50): undefined reference to `pthread_atfork'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_c9565.dir/build.make:103: recipe for target 'cmTC_c9565' failed
+make[1]: *** [cmTC_c9565] Error 1
+make[1]: Leaving directory '/home/aa/vawt_env/learn/trivia/CMakeFiles/CMakeTmp'
+Makefile:138: recipe for target 'cmTC_c9565/fast' failed
+make: *** [cmTC_c9565/fast] Error 2
+
+
+Source file was:
+#include <pthread.h>
+
+void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_cancel(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/aa/vawt_env/learn/trivia/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_409e8/fast && /usr/bin/make -f CMakeFiles/cmTC_409e8.dir/build.make CMakeFiles/cmTC_409e8.dir/build
+make[1]: Entering directory '/home/aa/vawt_env/learn/trivia/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_409e8.dir/CheckFunctionExists.c.o
+/home/aa/anaconda3/envs/vawt_35/bin/x86_64-conda_cos6-linux-gnu-cc   -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/aa/anaconda3/envs/vawt_35/include -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_409e8.dir/CheckFunctionExists.c.o   -c /home/aa/anaconda3/envs/vawt_35/share/cmake-3.17/Modules/CheckFunctionExists.c
+Linking C executable cmTC_409e8
+/home/aa/anaconda3/envs/vawt_35/bin/cmake -E cmake_link_script CMakeFiles/cmTC_409e8.dir/link.txt --verbose=1
+/home/aa/anaconda3/envs/vawt_35/bin/x86_64-conda_cos6-linux-gnu-cc -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/aa/anaconda3/envs/vawt_35/include -DCHECK_FUNCTION_EXISTS=pthread_create  -Wl,-O2 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,--disable-new-dtags -Wl,--gc-sections -Wl,-rpath,/home/aa/anaconda3/envs/vawt_35/lib -Wl,-rpath-link,/home/aa/anaconda3/envs/vawt_35/lib -L/home/aa/anaconda3/envs/vawt_35/lib  -rdynamic CMakeFiles/cmTC_409e8.dir/CheckFunctionExists.c.o  -o cmTC_409e8  -lpthreads 
+/home/aa/anaconda3/envs/vawt_35/bin/../lib/gcc/x86_64-conda_cos6-linux-gnu/7.5.0/../../../../x86_64-conda_cos6-linux-gnu/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_409e8.dir/build.make:103: recipe for target 'cmTC_409e8' failed
+make[1]: *** [cmTC_409e8] Error 1
+make[1]: Leaving directory '/home/aa/vawt_env/learn/trivia/CMakeFiles/CMakeTmp'
+Makefile:138: recipe for target 'cmTC_409e8/fast' failed
+make: *** [cmTC_409e8/fast] Error 2
+
+
+
