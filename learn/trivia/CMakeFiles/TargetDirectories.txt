@@ -1,2 +1,0 @@
-/home/aa/vawt_env/learn/trivia/CMakeFiles/rebuild_cache.dir
-/home/aa/vawt_env/learn/trivia/CMakeFiles/edit_cache.dir

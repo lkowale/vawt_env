@@ -6,71 +6,39 @@ import learn.airfoil_dynamics.ct_plot.vawt_blade as vb
 import math
 
 # from given airfoil directory create dataframe of tangential force
-
-# variable ranges
-theta_range = [x*math.tau/360 for x in range(-180, 179, 10)]
-pitch_range = [x*math.tau/360 for x in range(-180, 179, 10)]
-wind_speed_range = [x for x in range(3, 20, 1)]
-rotor_speed_range = [x + 0.001 for x in range(0, 100, 10)]
-
-wind_vector = vec.Vector2(r=3, theta=2)
-# rotor_speed = 0.0001
-rotor_speed = 0.0001
 # airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360'
 airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
 
+# variable ranges
+# theta_range = [x*math.tau/360 for x in range(-180, 179, 30)]
+# pitch_range = [x*math.tau/360 for x in range(-60, 60, 10)]
+# wind_speed_range = [x for x in range(3, 20, 3)]
+# rotor_speed_range = [x + 0.001 for x in range(0, 20, 3)]
+
+# variable ranges
+theta_range = [x*math.tau/360 for x in range(-180, 179, 10)]
+pitch_range = [x*math.tau/360 for x in range(-60, 60, 5)]
+wind_speed_range = [x for x in range(3, 20, 2)]
+rotor_speed_range = [x + 0.001 for x in range(0, 20, 3)]
+
+# given blade  VawtBlade(chord_length, airfoil_dir, rotor_radius)
 blade = vb.VawtBlade(0.2, airfoil_dir, 1)
 
+all_ct = pd.DataFrame()
+for rotor_speed in rotor_speed_range:
+    for wind_speed in wind_speed_range:
+        wind_vector = vec.Vector2(r=wind_speed, theta=0)
+        for theta in theta_range:
+            theta_ct_polar = [blade.get_tangential_force(wind_vector, rotor_speed, theta, pitch) for pitch in
+                              pitch_range]
+            df = pd.DataFrame()
+            df['ct'] = theta_ct_polar
+            df['pitch'] = pitch_range
+            df['theta'] = theta
+            df['wind_speed'] = wind_speed
+            df['rotor_speed'] = rotor_speed
+            all_ct = pd.concat([all_ct, df])
 
-# theta_range = [x for x in range(0, 10, 1)]
-# pitch_range = [x for x in range(-8, 7, 1)]
+all_ct.to_csv('tangential_force.csv', index=False)
 
-thetas = []
-for theta in theta_range:
-    theta_ct_polar = [blade.get_tangential_force(wind_vector, rotor_speed, theta, pitch) for pitch in pitch_range]
-    thetas.append(theta_ct_polar)
 
-df = pd.DataFrame(thetas, index=theta_range, columns=pitch_range)
-
-xx, yy = np.meshgrid(theta_range, pitch_range)
-fig = plt.figure()
-ax = fig.add_subplot(131, projection='3d')
-ax.title.set_text('tf wind r3t0')
-ax.set_xlabel('theta')
-ax.set_ylabel('pitch')
-ax.plot_surface(xx, yy, np.transpose(df), rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-
-# wind direction
-wind_vector = vec.Vector2(r=3, theta=math.pi / 2)
-thetas = []
-for theta in theta_range:
-    theta_ct_polar = [blade.get_tangential_force(wind_vector, rotor_speed, theta, pitch) for pitch in pitch_range]
-    thetas.append(theta_ct_polar)
-
-df = pd.DataFrame(thetas, index=theta_range, columns=pitch_range)
-
-xx, yy = np.meshgrid(theta_range, pitch_range)
-ax = fig.add_subplot(132, projection='3d')
-ax.title.set_text('tf wind r3tpi/2')
-ax.set_xlabel('theta')
-ax.set_ylabel('pitch')
-ax.plot_surface(xx, yy, np.transpose(df), rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-
-# rotor speed
-wind_vector = vec.Vector2(r=3, theta=0)
-rotor_speed = 12
-thetas = []
-for theta in theta_range:
-    theta_ct_polar = [blade.get_tangential_force(wind_vector, rotor_speed, theta, pitch) for pitch in pitch_range]
-    thetas.append(theta_ct_polar)
-
-df = pd.DataFrame(thetas, index=theta_range, columns=pitch_range)
-
-xx, yy = np.meshgrid(theta_range, pitch_range)
-ax = fig.add_subplot(133, projection='3d')
-ax.title.set_text('tf wind r3tpi/2 rotor_speed')
-ax.set_xlabel('theta')
-ax.set_ylabel('pitch')
-ax.plot_surface(xx, yy, np.transpose(df), rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-
-plt.show()
