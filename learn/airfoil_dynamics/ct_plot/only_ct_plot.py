@@ -8,11 +8,11 @@ import learn.airfoil_dynamics.ct_plot.base_calculus as bc
 
 # plots tangential force in function of aoa and rotora blade theta
 wind_direction = 0
-wind_speed = 3
+wind_speed = 6
 
 wind_vector = bc.get_wind_vector(wind_direction, wind_speed)
 # rotor_speed = 0.0001
-rotor_speed = 3
+rotor_speed = 6
 # airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360'
 airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
 

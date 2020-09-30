@@ -31,7 +31,7 @@ def q_learning_with_table(env, num_episodes=500):
         s = env.reset()
         done = False
         while not done:
-            if np.sum(q_table[s,:]) == 0:
+            if np.sum(q_table[s, :]) == 0:
                 # make a random selection of actions
                 a = np.random.randint(0, 2)
             else:
