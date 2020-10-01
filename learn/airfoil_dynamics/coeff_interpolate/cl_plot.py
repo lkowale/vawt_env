@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import pandas as pd
+from scipy import interpolate
 from learn.airfoil_model.data_load import *
 
 dir_path = '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360'
