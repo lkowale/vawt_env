@@ -50,7 +50,10 @@ class VawtBlade:
             tangential force
         """
         # relative wind vector
-        blade_speed = rotor_speed * self.rotor_radius
+        try:
+            blade_speed = rotor_speed * self.rotor_radius
+        except TypeError:
+            pass
         blade_tangent_line_angle = self._blade_tangent_line_angle(theta)
 
         blade_tangent_vector = vec.Vector2(r=blade_speed, theta=blade_tangent_line_angle)

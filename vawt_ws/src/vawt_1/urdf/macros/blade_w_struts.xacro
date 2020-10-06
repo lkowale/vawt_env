@@ -49,16 +49,16 @@
       <child link="${blade_name}"/>
       <origin xyz="${shaft_radius + strut_depth} 0 0" rpy="0 0 0"/>
       <axis xyz="0 0 1" />
-      <limit effort="300" velocity="0.1" lower="-3.14" upper="3.14"/>
+      <limit effort="300" velocity="200" lower="-3.14" upper="3.14"/>
     </joint>
 
     <transmission name="${blade_name}_transmission">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="${blade_name}_joint">
-        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
       </joint>
       <actuator name="${blade_name}_motor">
-        <hardwareInterface>EffortJointInterface</hardwareInterface>
+        <hardwareInterface>PositionJointInterface</hardwareInterface>
         <mechanicalReduction>1</mechanicalReduction>
       </actuator>
     </transmission>

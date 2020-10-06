@@ -129,6 +129,14 @@ def tau_normalize(angle):
     return angle
 
 
+def get_difference_angle(current_position, previous_position):
+    if previous_position > 0 and current_position < 0:
+        d_angle = (math.pi - previous_position) + (math.pi + current_position)
+    else:
+        d_angle = current_position - previous_position
+    return d_angle
+
+
 if __name__ == '__main__':
     # in degrees with respect to base frame
     wind_direction = 0
