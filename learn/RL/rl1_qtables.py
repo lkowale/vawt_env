@@ -10,13 +10,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-class VawtEnvironment:
+class VawtRLEnvironment:
 
-    def __init__(self, blade, steps=10000):
+    def __init__(self, blade, wind_direction, wind_speed, rotor_speed, steps=10000):
+
         self.blade = blade
         self.steps = steps
         # current state of blade (theta, pitch)
-        self.data = self.tf_data()
+        self.data = self.tf_data(wind_direction, wind_speed, rotor_speed)
         self.theta_num = self.data.shape[0]
         self.pitch_num = self.data.shape[1]
         self.reset()
@@ -39,10 +40,9 @@ class VawtEnvironment:
         debug = None
         return self.position, reward, done, debug
 
-    def tf_data(self):
-        wind_direction = 0
-        wind_speed = 6
-        rotor_speed = 6
+
+    def tf_data(self, wind_direction, wind_speed, rotor_speed):
+
         wind_vector = bc.get_wind_vector(wind_direction, wind_speed)
         theta_range = [x * math.tau / 360 for x in range(-180, 180, 5)]
         pitch_range = [x * math.tau / 360 for x in range(-180, 180, 5)]
@@ -243,18 +243,28 @@ def eps_greedy_q_learning_with_table(env, num_episodes=500):
     ax.plot_surface(xx, yy, np.transpose(coverage_df), rstride=1, cstride=1, cmap='viridis', edgecolor='none')
 
     # plt.show()
+    # ax.azim = -60
+    # ax.elev = 30
+    # ax.dist = 10
+    ax.azim = -150
+    ax.elev = 88
+
     plt.savefig('foo.png', bbox_inches='tight')
     return q_df, coverage_df
 
 
-airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
-# vb.VawtBlade(blade chord, airfoil_dir, rotor_radius)
-blade = vb.VawtBlade(0.2, airfoil_dir, 1)
-env = VawtEnvironment(blade)
-# table = naive_sum_reward_agent(env)
-# q_table = q_learning_with_table(env)
-q_df, coverage_df = eps_greedy_q_learning_with_table(env, 20)
-# save coverage table
-coverage_df.to_csv("eps_greedy_q_learning.csv")
-# print(table)
-# started 9:38 taking 100000 steps stopped about 9:41 - 3 minutes long
+if __name__ == '__main__':
+    airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
+    # vb.VawtBlade(blade chord, airfoil_dir, rotor_radius)
+    blade = vb.VawtBlade(0.2, airfoil_dir, 1)
+    wind_direction = 0
+    wind_speed = 3
+    rotor_speed = 3
+    env = VawtRLEnvironment(blade, wind_direction, wind_speed, rotor_speed, steps=10)
+    # table = naive_sum_reward_agent(env)
+    # q_table = q_learning_with_table(env)
+    q_df, coverage_df = eps_greedy_q_learning_with_table(env, 1)
+    # save coverage table
+    coverage_df.to_csv("eps_greedy_q_learning_old.csv")
+    # print(table)
+    # started 9:38 taking 100000 steps stopped about 9:41 - 3 minutes long

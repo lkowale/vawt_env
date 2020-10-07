@@ -13,7 +13,8 @@ class VawtBlade:
     def __init__(self, chord_length, airfoil_dir, rotor_radius):
         self.rotor_radius = rotor_radius
         self.chord_length = chord_length
-        self.cl_cd_df = load_airfol_polar_from_dir(airfoil_dir, fill_aoa=True)
+        self.airfoil_dir = airfoil_dir
+        self.cl_cd_df = load_airfol_polar_from_dir(self.airfoil_dir, fill_aoa=True)
         self.cl_interpolate = self.get_cl_interpolate()
         self.cd_interpolate = self.get_cd_interpolate()
 

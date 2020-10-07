@@ -255,6 +255,6 @@ env = VawtEnvironment(blade)
 # q_table = q_learning_with_table(env)
 q_df, coverage_df = eps_greedy_q_learning_with_table(env, 20)
 # save coverage table
-coverage_df.to_csv("eps_greedy_q_learning.csv")
+coverage_df.to_csv("eps_greedy_q_learning_old.csv")
 # print(table)
 # started 9:38 taking 100000 steps stopped about 9:41 - 3 minutes long

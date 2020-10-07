@@ -9,6 +9,7 @@ import learn.airfoil_dynamics.ct_plot.base_calculus as bc
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float32
 
+
 class VawtBlade:
 
     def __init__(self, chord_length, height, offset, sa_radius, airfoil_dir):
@@ -25,12 +26,11 @@ class VawtBlade:
 
 
 class VawtPhysicalModel:
-    # TODO
     # subscribes to :
     #     /joint_states - OK
-    #     /wind - TODO
+    #     /wind - TODO node for wind speed and direction publishing
     # publishes
-    #   shaft_torque
+    #   shaft_torque - OK
     #   blade_position_command
 
     def __init__(self):
@@ -72,6 +72,9 @@ class VawtPhysicalModel:
         blades_tforces = self.get_blades_tforces(self.wind_vec)
         # calculate shaft torque
         self.shaft_torque = self.get_shaft_torque(blades_tforces)
+        # publish shaft torque
+        self.shaft_torque_publisher.publish(self.shaft_torque)
+        #
         # update rotor position
         self.update(d_time)
 

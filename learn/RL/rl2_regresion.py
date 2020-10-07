@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # cross validation loss
-filename = "/home/aa/vawt_env/learn/RL/eps_greedy_q_learning.csv"
+filename = "/learn/RL/eps_greedy_q_learning_old.csv"
 df = pd.read_csv(filename, index_col=0)
 # df = df[df > 50]
 cov_treshold = 300
