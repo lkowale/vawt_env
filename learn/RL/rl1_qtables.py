@@ -48,7 +48,7 @@ class VawtRLEnvironment:
         pitch_range = [x * math.tau / 360 for x in range(-180, 180, 5)]
         thetas = []
         for theta in theta_range:
-            theta_ct_polar = [blade.get_tangential_force(wind_vector, rotor_speed, theta, pitch) for pitch in pitch_range]
+            theta_ct_polar = [self.blade.get_tangential_force(wind_vector, rotor_speed, theta, pitch) for pitch in pitch_range]
             thetas.append(theta_ct_polar)
 
         df = pd.DataFrame(thetas, index=theta_range, columns=pitch_range)

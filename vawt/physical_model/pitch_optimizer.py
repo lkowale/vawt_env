@@ -4,6 +4,8 @@ import pandas as pd
 from symfit import parameters, variables, sin, cos, Fit
 import numpy as np
 import collections
+import matplotlib.pyplot as plt
+import os
 
 
 def fourier_series(x, f, n=0):
@@ -27,7 +29,7 @@ class PitchOptimizer:
 
     def __init__(self, blade):
         self.blade = blade
-
+        self.coverage_treshold = 300
         # for given blade create a function of (tsr,theta) that gives optimum pitch position
         # for given amount/set of TSR's range(0.1,6.0, step=0.1)
         #       for each TSR create ct=f(pitch,theta) than RL the optimum pitch set in rl1_qtables
@@ -45,7 +47,7 @@ class PitchOptimizer:
         fourier_params = []
         for tsr in np.arange(0.1, 5.0, 0.3):
             # fourier_params.append([tsr, *self.get_fourier_params(tsr)])
-            fourier_params.append(collections.OrderedDict([('tsr', tsr)]).update(self.get_fourier_params(tsr)))
+            fourier_params.append(collections.OrderedDict([('tsr', tsr)]).update(self.get_fourier_params(tsr, self.coverage_treshold)))
         # get dataframe of optimal pitch fourier params
         # fourier_params_df = pd.DataFrame(fourier_params, index_col=0)
         # https://stackoverflow.com/questions/44365209/generate-a-pandas-dataframe-from-ordereddict
@@ -55,15 +57,39 @@ class PitchOptimizer:
         fourier_params_df.to_csv(file_name)
 
     def get_fourier_params(self, tsr, coverage_treshold):
-        # get RL occupation/coverage dataframe
+        # set folder and files base name
+        airfoil_name = self.blade.airfoil_dir.split('/')[-1].split('_')[0]
+        folder_name = airfoil_name + '_RLcover'
+        file_base_name = "/tsr{:1.1f}".format(tsr)
+        base_file_path = folder_name + file_base_name
+
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
+        # set environment
         wind_direction = 0
         wind_speed = 1
         rotor_speed = wind_speed * tsr
-        _, coverage_df = rl1.eps_greedy_q_learning_with_table(self.rl_environment, wind_direction, wind_speed, rotor_speed, 20)
+        rl_environment = rl1.VawtRLEnvironment(self.blade, wind_direction, wind_speed, rotor_speed)
+        # get RL occupation/coverage dataframe
+        _, coverage_df = rl1.eps_greedy_q_learning_with_table(rl_environment, 20)
         # save the coverage dataframe
-        file_name = blade.airfoil_dir.split('/')[-1] + "_" + tsr + "_RLcover.csv"
+        file_name = base_file_path + ".csv"
         coverage_df.to_csv(file_name)
         print("Saved coverage dataframe to " + file_name)
+        # save coverage dataframe plot
+        xx, yy = np.meshgrid(coverage_df.index.values, coverage_df.columns.values)
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.title.set_text(file_base_name)
+        ax.set_xlabel('theta')
+        ax.set_ylabel('pitch')
+        ax.plot_surface(xx, yy, np.transpose(coverage_df), rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+
+        ax.azim = -150
+        ax.elev = 88
+        file_name = base_file_path + ".png"
+        plt.savefig(file_name, bbox_inches='tight')
+        print("Saved coverage dataframe plot to " + file_name)
         # use treshold on coverage dataframe to pull up only mostly used actions/pitches
         thetas = []
         pitches = []
@@ -88,3 +114,5 @@ if __name__ == '__main__':
     blade_shaft_dist = 1
     blade_chord_length = 0.2
     blade = vb.VawtBlade(blade_chord_length, airfoil_dir, blade_shaft_dist)
+    po = PitchOptimizer(blade)
+    po.find_optimum_params()
