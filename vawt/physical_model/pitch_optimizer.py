@@ -6,7 +6,7 @@ import numpy as np
 import collections
 import matplotlib.pyplot as plt
 import os
-
+import time
 
 def fourier_series(x, f, n=0):
     """
@@ -69,27 +69,16 @@ class PitchOptimizer:
         wind_direction = 0
         wind_speed = 1
         rotor_speed = wind_speed * tsr
+        # rl_environment = rl1.VawtRLEnvironment(self.blade, wind_direction, wind_speed, rotor_speed, steps=10)
         rl_environment = rl1.VawtRLEnvironment(self.blade, wind_direction, wind_speed, rotor_speed)
-        # get RL occupation/coverage dataframe
-        _, coverage_df = rl1.eps_greedy_q_learning_with_table(rl_environment, 20)
+        # get RL occupation/coverage dataframe and save plot of coverage + tangent coeef
+        file_name = base_file_path + ".png"
+        _, coverage_df = rl1.eps_greedy_q_learning_with_table(rl_environment, 20, save_file_name=file_name)
         # save the coverage dataframe
         file_name = base_file_path + ".csv"
         coverage_df.to_csv(file_name)
         print("Saved coverage dataframe to " + file_name)
-        # save coverage dataframe plot
-        xx, yy = np.meshgrid(coverage_df.index.values, coverage_df.columns.values)
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.title.set_text(file_base_name)
-        ax.set_xlabel('theta')
-        ax.set_ylabel('pitch')
-        ax.plot_surface(xx, yy, np.transpose(coverage_df), rstride=1, cstride=1, cmap='viridis', edgecolor='none')
 
-        ax.azim = -150
-        ax.elev = 88
-        file_name = base_file_path + ".png"
-        plt.savefig(file_name, bbox_inches='tight')
-        print("Saved coverage dataframe plot to " + file_name)
         # use treshold on coverage dataframe to pull up only mostly used actions/pitches
         thetas = []
         pitches = []
@@ -110,9 +99,13 @@ class PitchOptimizer:
 
 
 if __name__ == '__main__':
+
+    start_time = time.time()
     airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
     blade_shaft_dist = 1
     blade_chord_length = 0.2
     blade = vb.VawtBlade(blade_chord_length, airfoil_dir, blade_shaft_dist)
     po = PitchOptimizer(blade)
     po.find_optimum_params()
+    exec_time = time.time() - start_time
+    print("Execution time {:2.2f} minutes ---".format(exec_time/60))

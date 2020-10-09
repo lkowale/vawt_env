@@ -23,17 +23,19 @@ class VawtRLEnvironment:
         self.reset()
 
     def reset(self):
+        # position is an index of theta as a row and pitch as a column in self.data
         self.position = (0, round(self.data.shape[1]/2))
         self.current_step = 0
         return self.position
 
     def step(self, action):
         self.current_step += 1
-        self.position = (self.get_new_theta(), self.get_new_pitch(action))
         try:
             reward = self.data.iloc[self.position[0], self.position[1]]
         except IndexError:
-            pass
+            print("Index Error")
+
+        self.position = (self.get_new_theta(), self.get_new_pitch(action))
         done = False
         if self.current_step > self.steps:
             done = True
@@ -45,7 +47,7 @@ class VawtRLEnvironment:
 
         wind_vector = bc.get_wind_vector(wind_direction, wind_speed)
         theta_range = [x * math.tau / 360 for x in range(-180, 180, 5)]
-        pitch_range = [x * math.tau / 360 for x in range(-180, 180, 5)]
+        pitch_range = [x * math.tau / 360 for x in range(-70, 70, 5)]
         thetas = []
         for theta in theta_range:
             theta_ct_polar = [self.blade.get_tangential_force(wind_vector, rotor_speed, theta, pitch) for pitch in pitch_range]
@@ -62,10 +64,11 @@ class VawtRLEnvironment:
 
     def get_new_pitch(self, delta):
         new_pitch = self.position[1] + delta
-        if new_pitch >= self.data.shape[1]:
-            new_pitch = new_pitch - self.data.shape[1]
-        if new_pitch < 0:
-            new_pitch = self.data.shape[1] + new_pitch
+        # conditionals for circular/revolute pitch displacement
+        # if new_pitch >= self.data.shape[1]:
+        #     new_pitch = self.data.shape[1] - 1
+        # if new_pitch < 0:
+        #     new_pitch = 0
         return new_pitch
 
 
@@ -188,7 +191,7 @@ def q_learning_with_table(env, num_episodes=500):
     return q_df
 
 
-def eps_greedy_q_learning_with_table(env, num_episodes=500):
+def eps_greedy_q_learning_with_table(env, num_episodes=500, display_plot=False, save_file_name=None):
 
     y = 0.95
     eps = 0.5
@@ -219,37 +222,52 @@ def eps_greedy_q_learning_with_table(env, num_episodes=500):
             coverage_df.iloc[s_index] += 1
             # if there arent yet rewards for given state
             # or randomly decide pick random action
-            if np.sum(q_df.loc[s_index]) == 0 or np.random.random() < eps:
+            if np.sum(q_df.loc[s_index]) <= 0 or np.random.random() < eps :
                 # make a random selection of actions
-                a = np.random.randint(-max_pitch_change, max_pitch_change + 1)
+                # a = np.random.randint(-max_pitch_change, max_pitch_change + 1)
+                a = np.random.randint(max(-max_pitch_change, -s[1]), min(max_pitch_change+1, coverage_df.shape[1] - s[1]))
+
             else:
                 # select the action with highest cummulative reward
                 # as an action pick name of column that is has highest value for given state
                 a = q_df.columns.values[np.argmax(q_df.loc[s_index])]
 
+            # print('i:{} s:{} a:{} -max_pitch_change:{} -s[1]{} max_pitch_change+1:{} coverage_df.shape[1] - s[1]:{} rand.from:{} rand_to:{}'.format(i,s_index,a,-max_pitch_change,-s[1],max_pitch_change+1,coverage_df.shape[1] - s[1],max(-max_pitch_change, -s[1]),min(max_pitch_change+1, coverage_df.shape[1] - s[1])))
             new_s, r, done, _ = env.step(a)
-            q_df.loc[s_index, a] += r + lr*(y*np.max(q_df.loc[(new_s[0], new_s[1]), :]) - q_df.loc[s_index, a])
+            try:
+                q_df.loc[s_index, a] += r + lr*(y*np.max(q_df.loc[(new_s[0], new_s[1]), :]) - q_df.loc[s_index, a])
+            except KeyError:
+                pass
             s = new_s
         print("Episode {}".format(i))
     # plot coverage
     xx, yy = np.meshgrid(env.data.index.values, env.data.columns.values)
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.title.set_text('f')
+    ax = fig.add_subplot(121, projection='3d')
+    ax.title.set_text('coverage')
     # ax.set_xlabel('x')
     # ax.set_ylabel('y')
     ax.set_xlabel('theta')
     ax.set_ylabel('pitch')
-    ax.plot_surface(xx, yy, np.transpose(coverage_df), rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-
-    # plt.show()
-    # ax.azim = -60
-    # ax.elev = 30
-    # ax.dist = 10
     ax.azim = -150
     ax.elev = 88
+    ax.plot_surface(xx, yy, np.transpose(coverage_df), rstride=1, cstride=1, cmap='viridis', edgecolor='none')
 
-    plt.savefig('foo.png', bbox_inches='tight')
+    ax = fig.add_subplot(122, projection='3d')
+    ax.title.set_text('ct')
+    # ax.set_xlabel('x')
+    # ax.set_ylabel('y')
+    ax.set_xlabel('theta')
+    ax.set_ylabel('pitch')
+    ax.azim = -150
+    ax.elev = 88
+    ax.plot_surface(xx, yy, np.transpose(env.data), rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+
+    if display_plot:
+        plt.show()
+    if save_file_name:
+        plt.savefig(save_file_name, bbox_inches='tight')
+
     return q_df, coverage_df
 
 
@@ -260,10 +278,13 @@ if __name__ == '__main__':
     wind_direction = 0
     wind_speed = 3
     rotor_speed = 3
-    env = VawtRLEnvironment(blade, wind_direction, wind_speed, rotor_speed, steps=10)
+    # env = VawtRLEnvironment(blade, wind_direction, wind_speed, rotor_speed)
+    env = VawtRLEnvironment(blade, wind_direction, wind_speed, rotor_speed, steps=10000)
     # table = naive_sum_reward_agent(env)
     # q_table = q_learning_with_table(env)
-    q_df, coverage_df = eps_greedy_q_learning_with_table(env, 1)
+    # q_df, coverage_df = eps_greedy_q_learning_with_table(env, 1, save_file_name='foo.png')
+    # q_df, coverage_df = eps_greedy_q_learning_with_table(env, 5, display_plot=True)
+    q_df, coverage_df = eps_greedy_q_learning_with_table(env, 20, display_plot=True)
     # save coverage table
     coverage_df.to_csv("eps_greedy_q_learning_old.csv")
     # print(table)
