@@ -1,5 +1,6 @@
 import learn.airfoil_dynamics.ct_plot.vawt_blade as vb
 import learn.RL.rl1_qtables as rl1
+import learn.RL.rl3_run_game as rl3
 import pandas as pd
 from symfit import parameters, variables, sin, cos, Fit
 import numpy as np
@@ -69,24 +70,32 @@ class PitchOptimizer:
         wind_direction = 0
         wind_speed = 1
         rotor_speed = wind_speed * tsr
-        # rl_environment = rl1.VawtRLEnvironment(self.blade, wind_direction, wind_speed, rotor_speed, steps=10)
-        rl_environment = rl1.VawtRLEnvironment(self.blade, wind_direction, wind_speed, rotor_speed)
+        theta_resolution = 5
+        pitch_resolution = 3
+        rl_environment = rl1.VawtRLEnvironment(blade, wind_direction, wind_speed, rotor_speed, theta_resolution, pitch_resolution)
         # get RL occupation/coverage dataframe and save plot of coverage + tangent coeef
         file_name = base_file_path + ".png"
-        _, coverage_df = rl1.eps_greedy_q_learning_with_table(rl_environment, 20, save_file_name=file_name)
+        q_df, coverage_df = rl1.eps_greedy_q_learning_with_table(rl_environment, 20, save_file_name=file_name)
         # save the coverage dataframe
         file_name = base_file_path + ".csv"
         coverage_df.to_csv(file_name)
+        # save q_table
+        file_name = base_file_path + "_q_table.csv"
+        q_df.to_csv(file_name)
         print("Saved coverage dataframe to " + file_name)
 
-        # use treshold on coverage dataframe to pull up only mostly used actions/pitches
-        thetas = []
-        pitches = []
-        for theta in coverage_df.index.values:
-            for pitch in coverage_df.columns.values:
-                if coverage_df.loc[theta, pitch] > coverage_treshold:
-                    thetas.append(theta)
-                    pitches.append(pitch)
+        # # use treshold on coverage dataframe to pull up only mostly used actions/pitches
+        # thetas = []
+        # pitches = []
+        # for theta in coverage_df.index.values:
+        #     for pitch in coverage_df.columns.values:
+        #         if coverage_df.loc[theta, pitch] > coverage_treshold:
+        #             thetas.append(theta)
+        #             pitches.append(pitch)
+        # run the game once to get optimal path and total reward
+        rg = rl3.RunGame(q_df, rl_environment)
+        total_reward, plot_df = rg.run()
+
         # make fourier series regression
         x, y = variables('x, y')
         w, = parameters('w')
@@ -101,7 +110,8 @@ class PitchOptimizer:
 if __name__ == '__main__':
 
     start_time = time.time()
-    airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
+    airfoil_dir = '/learn/AeroDyn polars/cp10_360'
+    # airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
     blade_shaft_dist = 1
     blade_chord_length = 0.2
     blade = vb.VawtBlade(blade_chord_length, airfoil_dir, blade_shaft_dist)

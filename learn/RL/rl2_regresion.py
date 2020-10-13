@@ -73,7 +73,6 @@ ax.plot(xdata, f_model.y)
 
 
 xdata = np.linspace(-np.pi, 4*np.pi)
-f_model = fit.model(x=xdata, **fit_result.params)
 # plt.plot(xdata, f_model.y, ls=':')
 ax = fig.add_subplot(313)
 ax.plot(xdata, f_model.y)

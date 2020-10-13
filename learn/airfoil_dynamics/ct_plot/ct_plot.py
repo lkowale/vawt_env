@@ -7,9 +7,9 @@ import math
 
 # plots tangential force in function of aoa and rotor blade theta
 
-wind_vector = vec.Vector2(r=3, theta=2)
+wind_vector = vec.Vector2(r=4, theta=0)
 # rotor_speed = 0.0001
-rotor_speed = 0.0001
+rotor_speed = 16
 # airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360'
 airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
 

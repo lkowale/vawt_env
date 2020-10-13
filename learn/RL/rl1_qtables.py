@@ -12,12 +12,14 @@ import matplotlib.pyplot as plt
 
 class VawtRLEnvironment:
 
-    def __init__(self, blade, wind_direction, wind_speed, rotor_speed, steps=10000):
+    def __init__(self, blade, wind_direction, wind_speed, rotor_speed, theta_resolution, pitch_resolution, steps=10000):
 
+        self.pitch_resolution = pitch_resolution
+        self.theta_resolution = theta_resolution
         self.blade = blade
         self.steps = steps
         # current state of blade (theta, pitch)
-        self.data = self.tf_data(wind_direction, wind_speed, rotor_speed)
+        self.data = self.tf_data(wind_direction, wind_speed, rotor_speed, self.theta_resolution, self.pitch_resolution)
         self.theta_num = self.data.shape[0]
         self.pitch_num = self.data.shape[1]
         self.reset()
@@ -43,11 +45,11 @@ class VawtRLEnvironment:
         return self.position, reward, done, debug
 
 
-    def tf_data(self, wind_direction, wind_speed, rotor_speed):
+    def tf_data(self, wind_direction, wind_speed, rotor_speed, theta_resolution, pitch_resolution):
 
         wind_vector = bc.get_wind_vector(wind_direction, wind_speed)
-        theta_range = [x * math.tau / 360 for x in range(-180, 180, 5)]
-        pitch_range = [x * math.tau / 360 for x in range(-70, 70, 5)]
+        theta_range = [x * math.tau / 360 for x in range(-180, 180, theta_resolution)]
+        pitch_range = [x * math.tau / 360 for x in range(-70, 70, pitch_resolution)]
         thetas = []
         for theta in theta_range:
             theta_ct_polar = [self.blade.get_tangential_force(wind_vector, rotor_speed, theta, pitch) for pitch in pitch_range]
@@ -220,9 +222,12 @@ def eps_greedy_q_learning_with_table(env, num_episodes=500, display_plot=False, 
             s_index = (s[0], s[1])
             # update coverage
             coverage_df.iloc[s_index] += 1
+            # if np.sum(q_df.loc[s_index]) == 0 or np.random.random() < eps:
             # if there arent yet rewards for given state
             # or randomly decide pick random action
-            if np.sum(q_df.loc[s_index]) <= 0 or np.random.random() < eps :
+            # check if there are any rewards above 0 - if so pick the highest
+            # if not pick random
+            if q_df.loc[s_index].max() <= 0 or np.random.random() < eps:
                 # make a random selection of actions
                 # a = np.random.randint(-max_pitch_change, max_pitch_change + 1)
                 a = np.random.randint(max(-max_pitch_change, -s[1]), min(max_pitch_change+1, coverage_df.shape[1] - s[1]))
@@ -270,6 +275,28 @@ def eps_greedy_q_learning_with_table(env, num_episodes=500, display_plot=False, 
 
     return q_df, coverage_df
 
+# run game returns a path of (theta,pitch) points that are maximizing the reward
+# def run_game(table, env):
+#     s = env.reset()
+#     tot_reward = 0
+#     done = False
+#     while not done:
+#         a = np.argmax(table[s, :])
+#         s, r, done, _ = env.step(a)
+#         tot_reward += r
+#     return tot_reward
+
+def max_path(q_df, env):
+    # TODO
+    s = env.reset()
+    # for first theta = -pi find pitch that has the biggest reward
+    ind = np.unravel_index(np.argmax(q_df, axis=None), q_df.shape)
+
+    done = False
+    while not done:
+        s_index = (s[0], s[1])
+        a = q_df.columns.values[np.argmax(q_df.loc[s_index])]
+    pass
 
 if __name__ == '__main__':
     airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
@@ -278,14 +305,21 @@ if __name__ == '__main__':
     wind_direction = 0
     wind_speed = 3
     rotor_speed = 3
+    theta_resolution = 5
+    pitch_resolution = 3
     # env = VawtRLEnvironment(blade, wind_direction, wind_speed, rotor_speed)
-    env = VawtRLEnvironment(blade, wind_direction, wind_speed, rotor_speed, steps=10000)
+    env = VawtRLEnvironment(blade, wind_direction, wind_speed, rotor_speed, theta_resolution, pitch_resolution, steps=10000)
     # table = naive_sum_reward_agent(env)
     # q_table = q_learning_with_table(env)
     # q_df, coverage_df = eps_greedy_q_learning_with_table(env, 1, save_file_name='foo.png')
     # q_df, coverage_df = eps_greedy_q_learning_with_table(env, 5, display_plot=True)
     q_df, coverage_df = eps_greedy_q_learning_with_table(env, 20, display_plot=True)
+    # make one go of the game
+    # run_game(q_df, env)
     # save coverage table
-    coverage_df.to_csv("eps_greedy_q_learning_old.csv")
+    # coverage_df.to_csv("eps_greedy_q_learning_old.csv")
+    # save qdf dataframe
+    file_name = "q_df.csv"
+    q_df.to_csv(file_name)
     # print(table)
     # started 9:38 taking 100000 steps stopped about 9:41 - 3 minutes long
