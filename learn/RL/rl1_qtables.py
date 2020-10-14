@@ -18,8 +18,11 @@ class VawtRLEnvironment:
         self.theta_resolution = theta_resolution
         self.blade = blade
         self.steps = steps
+        self.wind_direction = wind_direction
+        self.wind_speed = wind_speed
+        self.rotor_speed = rotor_speed
         # current state of blade (theta, pitch)
-        self.data = self.tf_data(wind_direction, wind_speed, rotor_speed, self.theta_resolution, self.pitch_resolution)
+        self.data = self.tf_data(self.wind_direction, self.wind_speed, self.rotor_speed, self.theta_resolution, self.pitch_resolution)
         self.theta_num = self.data.shape[0]
         self.pitch_num = self.data.shape[1]
         self.reset()
@@ -72,6 +75,44 @@ class VawtRLEnvironment:
         # if new_pitch < 0:
         #     new_pitch = 0
         return new_pitch
+
+
+def save_environment(env, filename, tsr):
+    dict = {
+    'airfoil_dir':env.blade.airfoil_dir,
+    'blade_shaft_dist':env.blade.rotor_radius,
+    'blade_chord_length':env.blade.chord_length,
+    'wind_direction':env.wind_direction,
+    'wind_speed':env.wind_speed,
+    'rotor_speed':env.rotor_speed,
+    'theta_resolution':env.theta_resolution,
+    'pitch_resolution':env.pitch_resolution,
+    'steps':env.steps,
+    'tsr':tsr,
+    }
+
+    pd.DataFrame(dict, index=[0]).to_csv(filename)
+
+
+def load_environment(filename):
+    # load df from csv
+    params = pd.read_csv(filename)
+    params = params.iloc[0]
+    # create blade
+    airfoil_dir = params['airfoil_dir']
+    blade_shaft_dist = params['blade_shaft_dist']
+    blade_chord_length = params['blade_chord_length']
+    blade = vb.VawtBlade(blade_chord_length, airfoil_dir, blade_shaft_dist)
+    # create environment
+    wind_direction = params['wind_direction']
+    wind_speed = params['wind_speed']
+    rotor_speed = params['rotor_speed']
+    theta_resolution = params['theta_resolution']
+    pitch_resolution = params['pitch_resolution']
+    steps = params['steps']
+    tsr = params['tsr']
+    env = VawtRLEnvironment(blade, wind_direction, wind_speed, rotor_speed, theta_resolution, pitch_resolution, steps=steps)
+    return env
 
 
 def naive_sum_reward_agent(env, num_episodes=500):
@@ -275,28 +316,6 @@ def eps_greedy_q_learning_with_table(env, num_episodes=500, display_plot=False, 
 
     return q_df, coverage_df
 
-# run game returns a path of (theta,pitch) points that are maximizing the reward
-# def run_game(table, env):
-#     s = env.reset()
-#     tot_reward = 0
-#     done = False
-#     while not done:
-#         a = np.argmax(table[s, :])
-#         s, r, done, _ = env.step(a)
-#         tot_reward += r
-#     return tot_reward
-
-def max_path(q_df, env):
-    # TODO
-    s = env.reset()
-    # for first theta = -pi find pitch that has the biggest reward
-    ind = np.unravel_index(np.argmax(q_df, axis=None), q_df.shape)
-
-    done = False
-    while not done:
-        s_index = (s[0], s[1])
-        a = q_df.columns.values[np.argmax(q_df.loc[s_index])]
-    pass
 
 if __name__ == '__main__':
     airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'

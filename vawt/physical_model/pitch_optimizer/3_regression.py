@@ -22,7 +22,7 @@ def find_optimum_params(self):
     for tsr in np.arange(0.1, 5.0, 0.3):
         # fourier_params.append([tsr, *self.get_fourier_params(tsr)])
         fourier_params.append(
-            collections.OrderedDict([('tsr', tsr)]).update(self.get_fourier_params(tsr, self.coverage_treshold)))
+            collections.OrderedDict([('tsr', tsr)]).update(self.save_q_table_tsr(tsr, self.coverage_treshold)))
     # get dataframe of optimal pitch fourier params
     # fourier_params_df = pd.DataFrame(fourier_params, index_col=0)
     # https://stackoverflow.com/questions/44365209/generate-a-pandas-dataframe-from-ordereddict

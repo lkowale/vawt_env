@@ -13,45 +13,40 @@ from vawt.physical_model.vawt_parameters import *
 
 class PitchOptimizer:
 
-    def __init__(self, blade):
-        self.blade = blade
-        self.coverage_treshold = 300
+    def __init__(self, env_params):
+        self.env_params = env_params
+        self.pitch_resolution = self.env_params['pitch_resolution']
+        self.theta_resolution = self.env_params['theta_resolution']
+        self.wind_speed = self.env_params['wind_speed']
+        self.wind_direction = self.env_params['wind_direction']
+        self.blade = vb.VawtBlade(self.env_params['blade_chord_length'], self.env_params['airfoil_dir'],
+                                  self.env_params['blade_shaft_dist'])
         # for given blade create a function of (tsr,theta) that gives optimum pitch position
         # for given amount/set of TSR's range(0.1,6.0, step=0.1)
         #       for each TSR create ct=f(pitch,theta) than RL the optimum pitch set in rl1_qtables
-        #       than use regression to fourier series 3 grade
-        # than on set of functions get from regression
-        #     use interpolate
-        #     or use another regression
-        #       to get a function pitch = g(theta) that is continuous
-        #              and sum of ct=f(g(theta),theta) for  theta in [-pi,pi] is the greatest
+        #       save q_table as csv DataFrame
 
-
-    def find_optimum_params(self):
-        # for given blade get  params for fourier series and sve them as csv
-        # get list of optimal pitch fourier params
-        fourier_params = []
+    def gensave_q_tables(self):
+        # for given environemnt gen ans save RL q_tables
         for tsr in np.arange(0.1, 5.0, 0.3):
-            # fourier_params.append([tsr, *self.get_fourier_params(tsr)])
-            self.get_fourier_params(tsr)
+            self.save_q_table_tsr(tsr)
 
-
-    def get_fourier_params(self, tsr):
+    def save_q_table_tsr(self, tsr):
         # set folder and files base name
         airfoil_name = self.blade.airfoil_dir.split('/')[-1].split('_')[0]
-        folder_name = airfoil_name + '_RLcover'
-        file_base_name = "/tsr{:1.1f}".format(tsr)
+        folder_name = 'exps/' + airfoil_name + '_RL_1/' # TODO + data
+        file_base_name = "tsr{:1.1f}".format(tsr)
         base_file_path = folder_name + file_base_name
-
+        # according to https://drive.google.com/file/d/1pFeKKm8gM5w1Uuh_Dme0p7oUCvHY7kbV/view?usp=sharing
+        rotor_speed = (self.wind_speed * tsr)/self.blade.rotor_radius
+        env_params_file = base_file_path + '_env_params.csv'
         if not os.path.exists(folder_name):
             os.makedirs(folder_name)
         # set environment
-        wind_direction = 0
-        wind_speed = 1
-        rotor_speed = wind_speed * tsr
-        theta_resolution = 5
-        pitch_resolution = 3
-        rl_environment = rl1.VawtRLEnvironment(blade, wind_direction, wind_speed, rotor_speed, theta_resolution, pitch_resolution)
+        rl_environment = rl1.VawtRLEnvironment(self.blade, self.wind_direction, self.wind_speed, rotor_speed,
+                                               self.theta_resolution, self.pitch_resolution)
+        # save environment
+        rl1.save_environment(rl_environment, env_params_file, tsr)
         # get RL occupation/coverage dataframe and save plot of coverage + tangent coeef
         file_name = base_file_path + ".png"
         q_df, coverage_df = rl1.eps_greedy_q_learning_with_table(rl_environment, 20, save_file_name=file_name)
@@ -68,11 +63,16 @@ if __name__ == '__main__':
 
     start_time = time.time()
     # airfoil_dir = '/learn/AeroDyn polars/cp10_360'
-    airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
-    blade_shaft_dist = 1
-    blade_chord_length = 0.2
-    blade = vb.VawtBlade(blade_chord_length, airfoil_dir, blade_shaft_dist)
-    po = PitchOptimizer(blade)
-    po.find_optimum_params()
+    params = {
+        'airfoil_dir': '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360',
+        'blade_shaft_dist': 1,
+        'blade_chord_length': 0.2,
+        'pitch_resolution': 4,
+        'theta_resolution': 5,
+        'wind_speed': 1,
+        'wind_direction': 0
+    }
+    po = PitchOptimizer(params)
+    po.gensave_q_tables()
     exec_time = time.time() - start_time
     print("Execution time {:2.2f} minutes ---".format(exec_time/60))

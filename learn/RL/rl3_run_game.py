@@ -4,14 +4,15 @@ import matplotlib.pyplot as plt
 import learn.airfoil_dynamics.ct_plot.vawt_blade as vb
 import learn.RL.rl1_qtables as rl1
 
+
 class RunGame:
 
-    def __init__(self, qd_f, env):
+    def __init__(self, q_df, env):
 
-        self.qd_f = qd_f
+        self.q_df = q_df
         self.env = env
         starting_theta_idx = 0
-        a = q_df.loc[0]
+        a = self.q_df.loc[0]
         starting_pitch_idx = np.argmax(a)
         # floor division to get optimal pitch
         starting_pitch_idx = starting_pitch_idx // q_df.shape[1]
@@ -26,8 +27,8 @@ class RunGame:
         total_reward = 0
         done = False
         while not done:
-            a = q_df.columns.values[np.argmax(q_df.loc[s])]
-            s, r, done, _ = env.step(a)
+            a = self.q_df.columns.values[np.argmax(self.q_df.loc[s])]
+            s, r, done, _ = self.env.step(a)
             total_reward += r
             self.optimal_path.append(s)
             # if theta has gone trough whole period end the game
@@ -39,6 +40,7 @@ class RunGame:
 
 if __name__ == '__main__':
     filename = "q_df.csv"
+    # filename = '/home/aa/vawt_env/vawt/physical_model/exps/naca0018_RL/tsr3.1_q_table.csv'
     q_df = pd.read_csv(filename, index_col=[0, 1])
     q_df.columns = q_df.columns.map(int)
     airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
