@@ -32,7 +32,9 @@ class RunGame:
             total_reward += r
             self.optimal_path.append(s)
             # if theta has gone trough whole period end the game
-            if s[0] == 0:
+            # if s[0] == 0:
+            # last position of first index from multiindex
+            if s[0] == self.q_df.index.levels[0].shape[0] - 1:
                 done = True
         op_df = pd.DataFrame(self.optimal_path, columns=['theta', 'pitch'])
         return total_reward, op_df

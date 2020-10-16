@@ -15,7 +15,7 @@ cl_cd_df = cl_cd_df.set_index(['aoa', 'Re_number']).unstack(level=-1)
 
 cl_df = cl_cd_df['cl']
 fig = plt.figure()
-ax = fig.add_subplot(121, projection='3d')
+ax = fig.add_subplot(111, projection='3d')
 ax.title.set_text('cl')
 for i, model in enumerate(cl_df.columns):
     ax.plot(np.full(cl_df.index.size, i), cl_df.index.values, cl_df[model])

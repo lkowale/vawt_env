@@ -25,10 +25,13 @@ class PitchOptimizer:
         # for given amount/set of TSR's range(0.1,6.0, step=0.1)
         #       for each TSR create ct=f(pitch,theta) than RL the optimum pitch set in rl1_qtables
         #       save q_table as csv DataFrame
+        self.tsr_start = self.env_params['tsr_start']
+        self.tsr_stop = self.env_params['tsr_stop']
+        self.tsr_step = self.env_params['tsr_step']
 
     def gensave_q_tables(self):
         # for given environemnt gen ans save RL q_tables
-        for tsr in np.arange(0.1, 5.0, 0.3):
+        for tsr in np.arange(self.tsr_start, self.tsr_stop, self.tsr_step):
             self.save_q_table_tsr(tsr)
 
     def save_q_table_tsr(self, tsr):
@@ -65,12 +68,16 @@ if __name__ == '__main__':
     # airfoil_dir = '/learn/AeroDyn polars/cp10_360'
     params = {
         'airfoil_dir': '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360',
+        # 'airfoil_dir': '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360',
         'blade_shaft_dist': 1,
         'blade_chord_length': 0.2,
         'pitch_resolution': 4,
         'theta_resolution': 5,
         'wind_speed': 1,
-        'wind_direction': 0
+        'wind_direction': 0,
+        'tsr_start': 0.1,
+        'tsr_stop': 7.0,
+        'tsr_step': 0.1
     }
     po = PitchOptimizer(params)
     po.gensave_q_tables()
