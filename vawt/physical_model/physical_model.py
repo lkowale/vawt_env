@@ -8,6 +8,7 @@ import math
 import learn.airfoil_dynamics.ct_plot.base_calculus as bc
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float32
+from std_msgs.msg import Float64
 from vawt.physical_model.pitch_optimizer.po3a_interpolate import OptimalPathInterpolate
 
 
@@ -22,10 +23,9 @@ class RotorBlade:
         self.offset = offset
         self.pitch = 0
         # / vawt_1 / blade_1_position_controller / command
-        # todo change controllers names so it can be easliyl converted to topic names
-        # or extract blade anumber and use it to set topic name
-        topic_name = "/vaw_1/" +
-        self.publisher = rospy.Publisher('chatter', String, queue_size=10)
+        # / vawt_1 / blade_1_joint_position_controller / command
+        topic_name = "/vawt_1/" + self.joint_name + '_position_controller/command'
+        self.publisher = rospy.Publisher(topic_name, Float64, queue_size=10)
 
     def get_tforce(self, wind_vec, rotor_speed, theta):
         tf = self.height * self.vb.get_tangential_force(wind_vec, rotor_speed, theta, self.pitch)
@@ -37,8 +37,15 @@ class RotorBlade:
         # get tangential force and multiply by strut length
         return self.get_tforce(wind_vec, rotor_speed, blade_theta) * self.sa_radius
 
-    def publish_command(self, tsr, rotor_theta):
 
+    def publish_command(self, command):
+        self.publisher.publish(command)
+
+    def get_optimal_pitch(self, tsr, rotor_theta, wind_direction):
+        # get optimum pitch for current blade position
+        blade_theta = rotor_theta + self.offset
+        to_wind_theta = wind_direction - blade_theta
+        return self.opi.get_optimal_pitch(tsr, to_wind_theta)
 
 
 class VawtPhysicalModel:
@@ -49,13 +56,13 @@ class VawtPhysicalModel:
     #   shaft_torque - OK
     #   blade_position_command
 
-    def __init__(self, airfoil_dir):
+    def __init__(self, airfoil_dir, op_dir):
 
         self.airfoil_dir = airfoil_dir
         self.blades = [
             # chord_length, height, offset, sa_radius, airfoil_dir
-            RotorBlade('blade_1_joint', 0.2, 2, 0, 1, self.airfoil_dir),
-            RotorBlade('blade_2_joint', 0.2, 2, math.pi, 1, self.airfoil_dir)
+            RotorBlade('blade_1_joint', 0.2, 2, 0, 1, self.airfoil_dir, op_dir),
+            RotorBlade('blade_2_joint', 0.2, 2, math.pi, 1, self.airfoil_dir, op_dir)
         ]
         # rotor speed musnt be equal 0 - for sake of relaitve wind vector - it cannot have 0 length
         self.speed = 0.001
@@ -72,8 +79,6 @@ class VawtPhysicalModel:
         ]
         self.shaft_torque_publisher = rospy.Publisher('/vawt_1/shaft_torque', Float32, queue_size=10)
         self.blade_position_publishers = []
-        for i, blade in enumerate(self.blades):
-            self.blade_position_publishers.append(rospy.Publisher('/vawt_1/blade_' + i + '/position_controller/command', Float32, queue_size=10))
 
     def joint_states_callback(self, data):
         # data.name = ['blade_1_joint', 'blade_2_joint', 'main_shaft_joint']
@@ -85,10 +90,6 @@ class VawtPhysicalModel:
         for blade in self.blades:
             blade.pitch = data.position[data.name.index(blade.joint_name)]
 
-
-    def wind_states_callback(self, data):
-        self.wind_vec = bc.get_wind_vector(data.direction, data.speed)
-
     def wind_speed_callback(self, data):
         self.wind_speed = data.data
 
@@ -96,12 +97,16 @@ class VawtPhysicalModel:
         self.wind_direction = data.data
 
     def step(self, d_time):
+        # update wind vector
+        self.wind_vec = self.get_wind_vector(self.wind_direction, self.wind_speed)
         self.shaft_torque = self.get_shaft_torque()
         # publish shaft torque
         self.shaft_torque_publisher.publish(self.shaft_torque)
+
         # publish blades commands
         for blade in self.blades:
-            blade.publish_command()
+            tsr = self.speed * blade.sa_radius / self.wind_speed
+            blade.publish_command(blade.get_optimal_pitch(tsr, self.theta, self.wind_direction))
 
     def get_blades_tforces(self, wind_vec):
         blades_tforces = []
@@ -112,14 +117,12 @@ class VawtPhysicalModel:
     def get_shaft_torque(self):
         shaft_torque = 0
         for blade in self.blades:
-            shaft_torque += blade.get_torque()
+            shaft_torque += blade.get_torque(self.wind_vec, self.speed, self.theta)
         return shaft_torque
-
-    def update(self, d_time):
-        pass
 
     def get_wind_vector(self, wind_direction, wind_speed):
         return vb.get_wind_vector(wind_direction, wind_speed)
+
 
 # make it to be launched as ROS node
 if __name__ == '__main__':
