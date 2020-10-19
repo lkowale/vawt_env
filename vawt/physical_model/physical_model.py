@@ -10,6 +10,9 @@ from sensor_msgs.msg import JointState
 from std_msgs.msg import Float32
 from std_msgs.msg import Float64
 from vawt.physical_model.pitch_optimizer.po3a_interpolate import OptimalPathInterpolate
+from gazebo_msgs.srv import ApplyBodyWrench
+from geometry_msgs.msg import Point, Wrench, Vector3
+import geometry_msgs
 
 
 class RotorBlade:
@@ -48,6 +51,7 @@ class RotorBlade:
         return self.opi.get_optimal_pitch(tsr, to_wind_theta)
 
 
+
 class VawtPhysicalModel:
     # subscribes to :
     #     /joint_states - OK
@@ -77,8 +81,14 @@ class VawtPhysicalModel:
             rospy.Subscriber('/vawt_1/wind/speed', Float32, self.wind_speed_callback),
             rospy.Subscriber('/vawt_1/wind/direction', Float32, self.wind_direction_callback)
         ]
+        # shaft torque publisher
         self.shaft_torque_publisher = rospy.Publisher('/vawt_1/shaft_torque', Float32, queue_size=10)
-        self.blade_position_publishers = []
+        # gazebo apply wrench ros client
+        rospy.wait_for_service('/gazebo/apply_body_wrench')
+        try:
+            self.apply_body_wrench = rospy.ServiceProxy('/gazebo/apply_body_wrench', ApplyBodyWrench)
+        except rospy.ServiceException:
+            print("Service call failed")
 
     def joint_states_callback(self, data):
         # data.name = ['blade_1_joint', 'blade_2_joint', 'main_shaft_joint']
@@ -102,6 +112,15 @@ class VawtPhysicalModel:
         self.shaft_torque = self.get_shaft_torque()
         # publish shaft torque
         self.shaft_torque_publisher.publish(self.shaft_torque)
+        # use shaft torque to move gazebo model by calling gazebo service
+        body_name = 'vawt_1::main_shaft'
+        reference_frame = 'world'
+        reference_point = geometry_msgs.msg.Point(x=0, y=0, z=0)
+        wrench = geometry_msgs.msg.Wrench(force=geometry_msgs.msg.Vector3(x=0, y=0, z=0),
+                                          torque=geometry_msgs.msg.Vector3(x=0, y=0, z=self.shaft_torque))
+        start_time = rospy.Time(secs=0, nsecs=0)
+        duration = rospy.Duration(secs=d_time, nsecs=0)
+        self.apply_body_wrench(body_name, reference_frame, reference_point, wrench, start_time, duration)
 
         # publish blades commands
         for blade in self.blades:
