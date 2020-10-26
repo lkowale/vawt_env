@@ -13,6 +13,7 @@ from vawt.physical_model.pitch_optimizer.po3a_interpolate import OptimalPathInte
 from gazebo_msgs.srv import ApplyBodyWrench
 from geometry_msgs.msg import Point, Wrench, Vector3
 import geometry_msgs
+import vec
 
 
 class RotorBlade:
@@ -47,7 +48,7 @@ class RotorBlade:
     def get_optimal_pitch(self, tsr, rotor_theta, wind_direction):
         # get optimum pitch for current blade position
         blade_theta = rotor_theta + self.offset
-        to_wind_theta = wind_direction - blade_theta
+        to_wind_theta = blade_theta - wind_direction
         return self.opi.get_optimal_pitch(tsr, to_wind_theta)
 
 
@@ -60,15 +61,11 @@ class VawtPhysicalModel:
     #   shaft_torque - OK
     #   blade_position_command
 
-    def __init__(self, airfoil_dir, op_dir):
+    def __init__(self, blades):
 
-        self.airfoil_dir = airfoil_dir
-        self.blades = [
-            # chord_length, height, offset, sa_radius, airfoil_dir
-            RotorBlade('blade_1_joint', 0.2, 2, 0, 1, self.airfoil_dir, op_dir),
-            RotorBlade('blade_2_joint', 0.2, 2, math.pi, 1, self.airfoil_dir, op_dir)
-        ]
+
         # rotor speed musnt be equal 0 - for sake of relaitve wind vector - it cannot have 0 length
+        self.blades = blades
         self.speed = 0.001
         # theta is a position of a first blade
         self.theta = 0
@@ -93,6 +90,7 @@ class VawtPhysicalModel:
     def joint_states_callback(self, data):
         # data.name = ['blade_1_joint', 'blade_2_joint', 'main_shaft_joint']
         self.theta = data.position[data.name.index('main_shaft_joint')]
+        self.theta = vec.normalize_angle(self.theta)
         speed = data.velocity[data.name.index('main_shaft_joint')]
         if speed < 0.001:
             speed = 0.001
@@ -101,7 +99,10 @@ class VawtPhysicalModel:
             blade.pitch = data.position[data.name.index(blade.joint_name)]
 
     def wind_speed_callback(self, data):
-        self.wind_speed = data.data
+        speed = data.data
+        if speed < 0.001:
+            speed = 0.001
+        self.wind_speed = speed
 
     def wind_direction_callback(self, data):
         self.wind_direction = data.data
@@ -125,7 +126,13 @@ class VawtPhysicalModel:
         # publish blades commands
         for blade in self.blades:
             tsr = self.speed * blade.sa_radius / self.wind_speed
-            blade.publish_command(blade.get_optimal_pitch(tsr, self.theta, self.wind_direction))
+            if tsr < 0.1:
+                tsr = 0.1
+            # get optimal pitch
+            op = blade.get_optimal_pitch(tsr, self.theta, self.wind_direction)
+            # translate it to joint position
+            pos_comm = -op
+            blade.publish_command(pos_comm)
 
     def get_blades_tforces(self, wind_vec):
         blades_tforces = []
@@ -146,8 +153,14 @@ class VawtPhysicalModel:
 # make it to be launched as ROS node
 if __name__ == '__main__':
     airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
-    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/exps/naca0018_RL_1/'
-    vpm = VawtPhysicalModel(airfoil_dir, op_interp_dir)
+    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_RL_2/'
+
+    twin_blades = [
+        # chord_length, height, offset, sa_radius, airfoil_dir
+        RotorBlade('blade_1_joint', 0.2, 2, 0, 1, airfoil_dir, op_interp_dir),
+        RotorBlade('blade_2_joint', 0.2, 2, math.pi, 1, airfoil_dir, op_interp_dir)
+    ]
+    vpm = VawtPhysicalModel(twin_blades)
     rospy.init_node('VawtModel', anonymous=True)
     rate = rospy.Rate(50)
     while not rospy.is_shutdown():

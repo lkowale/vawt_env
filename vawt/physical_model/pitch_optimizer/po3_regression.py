@@ -81,7 +81,7 @@ class FourierSeriesRegression:
 if __name__ == '__main__':
 
     start_time = time.time()
-    fsr = FourierSeriesRegression('/home/aa/vawt_env/vawt/physical_model/exps/naca0018_RL_1/', 3)
+    fsr = FourierSeriesRegression('/vawt/physical_model/pitch_optimizer/exps/naca0018_RL_1/', 3)
     fsr.regress(save_plot=True)
     exec_time = time.time() - start_time
     print("Execution time {:2.2f} minutes ---".format(exec_time/60))

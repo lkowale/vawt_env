@@ -13,7 +13,8 @@ class RunGame:
         self.env = env
         starting_theta_idx = 0
         a = self.q_df.loc[0]
-        starting_pitch_idx = np.argmax(a)
+        # to ignore nan if there are any
+        starting_pitch_idx = np.nanargmax(a)
         # floor division to get optimal pitch
         starting_pitch_idx = starting_pitch_idx // q_df.shape[1]
         starting_position = (starting_theta_idx, starting_pitch_idx)
