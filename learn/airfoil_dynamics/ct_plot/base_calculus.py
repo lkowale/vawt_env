@@ -27,7 +27,9 @@ def tangential_force(fl, fd, a):
     ft : float
         tangential force
     """
-    return fl * math.sin(a) - fd * math.cos(a)
+    fl_part = fl * math.sin(a)
+    fd_part = fd * math.cos(a)
+    return fl_part - fd_part
 
 
 def normal_force(fl, fd, a):

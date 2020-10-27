@@ -66,6 +66,7 @@ class VawtBlade:
         cl, cd = self.get_coeffs(aoa_360, re_number)
         fl = lift_force(air_density, rel_wind.r, self.chord_length, cl)
         fd = drag_force(air_density, rel_wind.r, self.chord_length, cd)
+        # casting angle is between rel_wind and blade tangent
         casting_angle = self._rel_tang_angle(rel_wind, blade_tangent_vector)
         return tangential_force(fl, fd, casting_angle)
 

@@ -148,5 +148,19 @@ class TestVawtBlade(unittest.TestCase):
             self.assertAlmostEqual(answer.theta, tc[2].theta, 5, 'Wrong get_wind_vector theta')
             self.assertAlmostEqual(answer.r, tc[2].r, 5, 'Wrong get_wind_vector radius')
 
+    def test__rel_tang_angle(self):
+        airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
+        blade = vb.VawtBlade(0.2, airfoil_dir, 1)
+        # VECTORS rel_wind, blade_tangent_vector
+        test_values = [
+            [vec.Vector2(r=1, theta=1), vec.Vector2(r=1, theta=1.2), -0.2],
+            [vec.Vector2(r=1, theta=1), vec.Vector2(r=1, theta=1.2), -0.2]
+        ]
+
+        for rel_wind, blade_tangent, rel_tang_angle in test_values:
+            self.assertAlmostEqual(blade._rel_tang_angle(rel_wind, blade_tangent), rel_tang_angle, 5, 'Wrong _rel_tang_angle')
+
+
+
 if __name__ == '__main__':
     unittest.main()

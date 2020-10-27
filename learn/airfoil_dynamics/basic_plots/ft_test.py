@@ -6,7 +6,7 @@ import unittest
 
 class TestVawtFt(unittest.TestCase):
 
-    def test_blade_tangent_line_angle(self):
+    def test_tangential_force(self):
         wind_direction = 0
         wind_speed = 3
 
@@ -19,10 +19,10 @@ class TestVawtFt(unittest.TestCase):
         blade = vb.VawtBlade(0.2, airfoil_dir, 1)
 
         theta_pitch = [
+            (-1, 0.5, -0.70448212),
             (-2, 0, 0.252998783),
-            (-1, 0, -0.00022723),
-            (-1, 20 * math.tau / 360),
-            (-2, -2)
+            (-1, 0, -0.13132965),
+            (-2, -2, -6.32908050)
         ]
 
         for theta, pitch, ft in theta_pitch:
