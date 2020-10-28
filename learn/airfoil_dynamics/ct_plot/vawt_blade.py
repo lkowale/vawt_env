@@ -165,7 +165,7 @@ class VawtBlade:
         """
         # blade_chord_vec = blade_tangent_vector.theta - pitch
         # return tau_normalize(blade_chord_vec)
-        return blade_tangent_vector.rotated(-pitch)
+        return blade_tangent_vector.rotated(pitch)
 
     def _angle_of_attack(self, rel_wind, blade_chord):
         """"Calculate angle of attack
@@ -191,3 +191,5 @@ class VawtBlade:
 
     def _rel_tang_angle(self, rel_wind, blade_tangent):
         return rel_wind.theta - blade_tangent.theta
+        # return blade_tangent.theta - rel_wind.theta
+

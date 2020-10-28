@@ -93,10 +93,10 @@ class TestVawtBlade(unittest.TestCase):
                # positive pitch - 'takes wind under the wing of ascending plane'
                # positive pitch must be substracted from blade tangent to give actual blade chord vector
                # blade_tangent_vector, pitch, blade_chord_vector.theta
-               [vec.Vector2(r=1, theta=-2), 1, -3],
-               [vec.Vector2(r=1, theta=-1), -0.5, -0.5],
-               [vec.Vector2(r=1, theta=0.1), 1, -0.9],
-               [vec.Vector2(r=1, theta=3), -1, -2.283185307]
+               [vec.Vector2(r=1, theta=-2), 1, -1],
+               [vec.Vector2(r=1, theta=-1), -0.5, -1.5],
+               [vec.Vector2(r=1, theta=0.1), 1, 1.1],
+               [vec.Vector2(r=1, theta=3), -1, 2]
            ]
         for tc in test_values:
             answer = blade._blade_chord_vec(tc[0], tc[1])

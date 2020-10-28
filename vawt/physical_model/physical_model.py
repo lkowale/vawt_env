@@ -151,14 +151,14 @@ class VawtPhysicalModelROSinterface:
             # get optimal pitch
             op = ros_blade.blade.get_optimal_pitch(tsr, self.vpm.theta, self.vpm.wind_direction)
             # translate it to joint position
-            pos_comm = -op
+            pos_comm = op
             ros_blade.publish_command(pos_comm)
 
 
 # make it to be launched as ROS node
 if __name__ == '__main__':
     airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
-    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_RL_2/'
+    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_RL_4/'
 
     twin_blades = [
         # chord_length, height, offset, sa_radius, airfoil_dir

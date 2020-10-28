@@ -37,7 +37,7 @@ class PitchOptimizer:
     def save_q_table_tsr(self, tsr):
         # set folder and files base name
         airfoil_name = self.blade.airfoil_dir.split('/')[-1].split('_')[0]
-        folder_name = 'exps/' + airfoil_name + '_RL_3/' # TODO + data
+        folder_name = 'exps/' + airfoil_name + '_RL_4/' # TODO + data
         file_base_name = "tsr{:1.1f}".format(tsr)
         base_file_path = folder_name + file_base_name
         # according to https://drive.google.com/file/d/1pFeKKm8gM5w1Uuh_Dme0p7oUCvHY7kbV/view?usp=sharing
