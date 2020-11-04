@@ -65,8 +65,9 @@ class OptimalPath:
 if __name__ == '__main__':
 
     start_time = time.time()
-    op = OptimalPath('/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_RL_4/')
-    # op = OptimalPath('/home/aa/vawt_env/vawt/physical_model/exps/cp10_RL_1/')
+    op = OptimalPath('/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_RL_5/')
+
+    # op = OptimalPath('/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/cp10_RL_5/')
     op.find_optimum_params(save_plot=True)
     exec_time = time.time() - start_time
     print("Execution time {:2.2f} minutes ---".format(exec_time/60))

@@ -37,7 +37,7 @@ class PitchOptimizer:
     def save_q_table_tsr(self, tsr):
         # set folder and files base name
         airfoil_name = self.blade.airfoil_dir.split('/')[-1].split('_')[0]
-        folder_name = 'exps/' + airfoil_name + '_RL_4/' # TODO + data
+        folder_name = 'exps/' + self.env_params['results_dir_prepend'] + airfoil_name + self.env_params['results_dir_append'] # TODO + data
         file_base_name = "tsr{:1.1f}".format(tsr)
         base_file_path = folder_name + file_base_name
         # according to https://drive.google.com/file/d/1pFeKKm8gM5w1Uuh_Dme0p7oUCvHY7kbV/view?usp=sharing
@@ -69,15 +69,17 @@ if __name__ == '__main__':
     params = {
         'airfoil_dir': '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360',
         # 'airfoil_dir': '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360',
+        'results_dir_prepend': 'tsr_test/',
+        'results_dir_append': '_ws_6/',
         'blade_shaft_dist': 1,
         'blade_chord_length': 0.2,
         'pitch_resolution': 4,
         'theta_resolution': 5,
-        'wind_speed': 3,
+        'wind_speed': 6,
         'wind_direction': 0,
-        'tsr_start': 0.1,
-        'tsr_stop': 7.0,
-        'tsr_step': 0.3
+        'tsr_start': 6.1,
+        'tsr_stop': 6.5,
+        'tsr_step': 1
     }
     po = PitchOptimizer(params)
     po.gensave_q_tables()

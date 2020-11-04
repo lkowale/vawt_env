@@ -23,19 +23,19 @@ def direction_sub_callback(ros_data):
 
 
 rospy.init_node('wind_marker', anonymous=True)
-speed_sub = rospy.Subscriber('/wind/speed', Float32, speed_sub_callback, queue_size=1)
-direction_sub = rospy.Subscriber('/wind/direction', Float32, direction_sub_callback, queue_size=1)
-pub = rospy.Publisher('/wind/marker', Marker, queue_size=10)
+speed_sub = rospy.Subscriber('/vawt_1/wind/speed', Float32, speed_sub_callback, queue_size=1)
+direction_sub = rospy.Subscriber('/vawt_1/wind/direction', Float32, direction_sub_callback, queue_size=1)
+pub = rospy.Publisher('/vawt_1/wind/marker', Marker, queue_size=10)
 rate = rospy.Rate(5)
 
 while not rospy.is_shutdown():
     marker = Marker()
-    marker.header.frame_id = "/base_link"
+    marker.header.frame_id = "/world"
     marker.type = marker.ARROW
     marker.action = marker.ADD
     marker.scale.x = speed / 20.0
-    marker.scale.y = 0.01
-    marker.scale.z = 0.01
+    marker.scale.y = 0.05
+    marker.scale.z = 0.02
     marker.color.r = 1.0
     marker.color.g = 0.0
     marker.color.b = 0.0

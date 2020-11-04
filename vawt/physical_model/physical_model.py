@@ -48,7 +48,7 @@ class RotorBlade:
 class VawtPhysicalModel:
 
     def __init__(self, blades):
-        # rotor speed musnt be equal 0 - for sake of relaitve wind vector - it cannot have 0 length
+        # rotor speed musnt be equal 0 - for sake of relative wind vector - it cannot have 0 length
         self.blades = blades
         self.speed = 0.001
         # theta is a position of a first blade
@@ -157,9 +157,10 @@ class VawtPhysicalModelROSinterface:
 
 # make it to be launched as ROS node
 if __name__ == '__main__':
-    airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
-    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_RL_4/'
-
+    # airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
+    # op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_RL_4/'
+    airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360'
+    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/cp10_RL_4/'
     twin_blades = [
         # chord_length, height, offset, sa_radius, airfoil_dir
         RotorBlade('blade_1_joint', 0.2, 2, 0, 1, airfoil_dir, op_interp_dir),

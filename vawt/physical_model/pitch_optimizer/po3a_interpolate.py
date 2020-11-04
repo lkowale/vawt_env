@@ -78,23 +78,6 @@ class OptimalPathInterpolate:
         ax.set_xlabel('tsr')
         ax.set_ylabel('theta')
         ax.set_zlabel('optimal pitch - interpolation')
-
-
-        # # Plot using `.trisurf()`:
-        # size = y.size * len(x)
-        # x = xx.reshape(size)
-        # y = yy.reshape(size)
-        # z = pitch_df.values.reshape(size)
-        #
-        # fig = plt.figure()
-        # ax = fig.add_subplot(111, projection='3d')
-        # ax.title.set_text('maximum power pitch')
-        # ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.5)
-        # ax.set_xlabel('tsr')
-        # ax.set_ylabel('theta')
-        # ax.set_zlabel('optimal pitch')
-
-
         plt.show()
 
     def get_interpolation(self, data):
@@ -111,7 +94,7 @@ class OptimalPathInterpolate:
 if __name__ == '__main__':
 
     start_time = time.time()
-    opi = OptimalPathInterpolate('/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_RL_1/')
+    opi = OptimalPathInterpolate('/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_RL_4/')
     opi.plot_grid(opi.get_op_grid())
     exec_time = time.time() - start_time
     print("Execution time {:2.2f} minutes ---".format(exec_time/60))

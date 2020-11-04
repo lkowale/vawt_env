@@ -35,13 +35,19 @@ class TestBlade:
         tf_df['tf'] = tf
         return tf_df
 
+    def work_per_revolution(self, blade_forces_polar):
+        d_alpha = math.tau/self.rotor_thetas.size
+        work = d_alpha * self.rot_blade.sa_radius * blade_forces_polar['tf'].sum()
+        return work
+
 
 class VawtTest:
 
-    def __init__(self, physical_model, parameters):
+    def __init__(self, physical_model, parameters, theta_resolution):
         self.parameters = parameters
         self.physical_model = physical_model
-        self.rotor_thetas = np.linspace(-np.pi, np.pi, num=100)
+        self.theta_resolution = theta_resolution
+        self.rotor_thetas = np.linspace(-np.pi, np.pi, num=self.theta_resolution)
         self.test_blades = [TestBlade(blade, self.parameters, self.rotor_thetas) for blade in self.physical_model.blades]
 
     def plot_blades_op_tf(self):
@@ -61,19 +67,33 @@ class VawtTest:
         torque.plot(x='theta', y='trq', kind='line')
         plt.show()
 
+    def work_per_revolution(self):
+        work = 0
+        for blade in self.test_blades:
+            work = work + blade.work_per_revolution(blade.btf)
+        return work
+
+    def power(self, revolution_time):
+        return self.work_per_revolution()/revolution_time
+
+
 if __name__ == '__main__':
-    airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
-    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_RL_4/'
+    # airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
+    # op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_RL_4/'
+
+    airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360'
+    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/cp10_RL_4/'
+
     params = {
-        'airfoil_dir': '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360',
-        # 'airfoil_dir': '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360',
+        # 'airfoil_dir': '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360',
+        'airfoil_dir': '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360',
         'blade_shaft_dist': 1,
         'blade_chord_length': 0.2,
         'pitch_resolution': 4,
         'theta_resolution': 5,
         'wind_speed': 3,
         'wind_direction': 0,
-        'rotor_speed': 0.3,
+        'rotor_speed': 0.1,
         'tsr_start': 0.1,
         'tsr_stop': 7.0,
         'tsr_step': 0.3
@@ -86,8 +106,8 @@ if __name__ == '__main__':
     vpm_tb = pm.VawtPhysicalModel(twin_blades)
     # gen plots of torque in function of rotor theta to check if there are any negative positions
 
-    vt = VawtTest(vpm_tb, params)
-    vt.plot_blades_op_tf()
+    vt = VawtTest(vpm_tb, params, 100)
+    # vt.plot_blades_op_tf()
     vt.plot_torque_polar()
     # dfs = [pd.DataFrame(vt.blade_forces_polar(blade, 3, 3), columns=['theta', 't_force']) for blade in vpm_tb.blades]
     # # df = df.set_index('theta')
