@@ -28,7 +28,7 @@ class VawtPowerTest:
             for wind_speed in self.wind_speed_range:
                 self.params['wind_speed'] = wind_speed
                 self.params['rotor_speed'] = wind_speed*tsr
-                vt = VawtTest(vpm_tb, params, 100)
+                vt = VawtTest(self.physical_model, self.params, 100)
                 work = vt.work_per_revolution()
                 rs_work.append(work)
             tsr_work.append(rs_work)
@@ -53,17 +53,17 @@ class VawtPowerTest:
         ax.set_xlabel('tsr')
         ax.set_ylabel('wind speed')
         ax.set_zlabel('Work')
-        plt.show()
+
 
 
 
 if __name__ == '__main__':
 
     params = {
-            # airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
-            # op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_RL_4/'
-            'airfoil_dir': '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360',
-            'op_interp_dir': '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/cp10_RL_4/',
+            'airfoil_dir': '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360',
+            'op_interp_dir': '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_RL_4/',
+            # 'airfoil_dir': '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360',
+            # 'op_interp_dir': '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/cp10_RL_4/',
             'blade_shaft_dist': 1,
             'blade_chord_length': 0.2,
             'pitch_resolution': 4,
@@ -88,6 +88,7 @@ if __name__ == '__main__':
     vpt = VawtPowerTest(vpm_tb, params)
     # vt.plot_blades_op_tf()
     vpt.plot_work(vpt.get_work())
+    plt.show()
     # dfs = [pd.DataFrame(vt.blade_forces_polar(blade, 3, 3), columns=['theta', 't_force']) for blade in vpm_tb.blades]
     # # df = df.set_index('theta')
     # for df in dfs:
