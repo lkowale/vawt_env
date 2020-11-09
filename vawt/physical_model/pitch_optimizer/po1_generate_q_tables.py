@@ -17,7 +17,6 @@ class PitchOptimizer:
         self.env_params = env_params
         self.pitch_resolution = self.env_params['pitch_resolution']
         self.theta_resolution = self.env_params['theta_resolution']
-        self.wind_speed = self.env_params['wind_speed']
         self.wind_direction = self.env_params['wind_direction']
         self.blade = vb.VawtBlade(self.env_params['blade_chord_length'], self.env_params['airfoil_dir'],
                                   self.env_params['blade_shaft_dist'])
@@ -25,31 +24,28 @@ class PitchOptimizer:
         # for given amount/set of TSR's range(0.1,6.0, step=0.1)
         #       for each TSR create ct=f(pitch,theta) than RL the optimum pitch set in rl1_qtables
         #       save q_table as csv DataFrame
-        self.tsr_start = self.env_params['tsr_start']
-        self.tsr_stop = self.env_params['tsr_stop']
-        self.tsr_step = self.env_params['tsr_step']
+        self.wind_speeds = self.env_params['wind_speeds']
+        self.rotor_speeds = self.env_params['rotor_speeds']
 
     def gensave_q_tables(self):
-        # for given environemnt gen ans save RL q_tables
-        for tsr in np.arange(self.tsr_start, self.tsr_stop, self.tsr_step):
-            self.save_q_table_tsr(tsr)
+        for wind_speed in self.wind_speeds:
+            for rotor_speed in self.rotor_speeds:
+                self.save_q_table_tsr(wind_speed, rotor_speed)
 
-    def save_q_table_tsr(self, tsr):
+    def save_q_table_tsr(self, wind_speed, rotor_speed):
         # set folder and files base name
         airfoil_name = self.blade.airfoil_dir.split('/')[-1].split('_')[0]
         folder_name = 'exps/' + self.env_params['results_dir_prepend'] + airfoil_name + self.env_params['results_dir_append'] # TODO + data
-        file_base_name = "tsr{:1.1f}".format(tsr)
+        file_base_name = "w_r_{}_{}".format(wind_speed, rotor_speed)
         base_file_path = folder_name + file_base_name
-        # according to https://drive.google.com/file/d/1pFeKKm8gM5w1Uuh_Dme0p7oUCvHY7kbV/view?usp=sharing
-        rotor_speed = (self.wind_speed * tsr)/self.blade.rotor_radius
         env_params_file = base_file_path + '_env_params.csv'
         if not os.path.exists(folder_name):
             os.makedirs(folder_name)
         # set environment
-        rl_environment = rl1.VawtRLEnvironment(self.blade, self.wind_direction, self.wind_speed, rotor_speed,
+        rl_environment = rl1.VawtRLEnvironment(self.blade, self.wind_direction, wind_speed, rotor_speed,
                                                self.theta_resolution, self.pitch_resolution)
         # save environment
-        rl1.save_environment(rl_environment, env_params_file, tsr)
+        rl1.save_environment(rl_environment, env_params_file)
         # get RL occupation/coverage dataframe and save plot of coverage + tangent coeef
         file_name = base_file_path + ".png"
         q_df, coverage_df = rl1.eps_greedy_q_learning_with_table(rl_environment, 20, save_file_name=file_name)
@@ -69,17 +65,16 @@ if __name__ == '__main__':
     params = {
         'airfoil_dir': '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360',
         # 'airfoil_dir': '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360',
-        'results_dir_prepend': 'tsr_test/',
-        'results_dir_append': '_ws_9/',
+        # 'results_dir_prepend': 'tsr_test/',
+        'results_dir_prepend': '',
+        'results_dir_append': '_m_5/',
         'blade_shaft_dist': 1,
         'blade_chord_length': 0.2,
         'pitch_resolution': 4,
         'theta_resolution': 5,
-        'wind_speed': 9,
+        'wind_speeds': np.arange(3, 13),
+        'rotor_speeds': [0.001, 1, 5, 10, 20, 30, 40, 50, 60],
         'wind_direction': 0,
-        'tsr_start': 6.1,
-        'tsr_stop': 6.5,
-        'tsr_step': 1
     }
     po = PitchOptimizer(params)
     po.gensave_q_tables()

@@ -85,7 +85,7 @@ class VawtRLEnvironment:
         return new_pitch
 
 
-def save_environment(env, filename, tsr):
+def save_environment(env, filename):
     dict = {
     'airfoil_dir':env.blade.airfoil_dir,
     'blade_shaft_dist':env.blade.rotor_radius,
@@ -95,8 +95,7 @@ def save_environment(env, filename, tsr):
     'rotor_speed':env.rotor_speed,
     'theta_resolution':env.theta_resolution,
     'pitch_resolution':env.pitch_resolution,
-    'steps':env.steps,
-    'tsr':tsr,
+    'steps':env.steps
     }
 
     pd.DataFrame(dict, index=[0]).to_csv(filename)
@@ -118,7 +117,6 @@ def load_environment(filename):
     theta_resolution = params['theta_resolution']
     pitch_resolution = params['pitch_resolution']
     steps = params['steps']
-    tsr = params['tsr']
     env = VawtRLEnvironment(blade, wind_direction, wind_speed, rotor_speed, theta_resolution, pitch_resolution, steps=steps)
     return env
 
