@@ -24,40 +24,40 @@ if __name__ == '__main__':
         'theta_resolution': 5,
         'wind_speed': 9,
         'wind_direction': 0,
-        'tsr_start': 6.7,
-        'tsr_stop': 6.9,
+        'tsr_start': 6.1,
+        'tsr_stop': 6.7,
         'tsr_step': 0.2
     }
 
     tsr = 6.1
     wind_list = [3, 6, 9]
 
-    # # 1 generate q-tables for given tsr but different wind speed
-    # for wind in wind_list:
-    #     params['wind_speed'] = wind
-    #     params['results_dir_prepend'] = 'tsr_test/'
-    #     params['results_dir_append'] = '_ws_' + str(wind) + '/'
-    #     po = PitchOptimizer(params)
-    #     po.gensave_q_tables()
-    # # 2 genereta optimal paths
-    # for wind in wind_list:
-    #     op = OptimalPath('/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/tsr_test/naca0018_ws_' + str(wind) + '/')
-    #     # op = OptimalPath('/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/cp10_RL_5/')
-    #     op.find_optimum_params(save_plot=True)
-    # # 3 plot torque polar
-    # for wind in wind_list:
-    #     params['wind_speed'] = wind
-    #     params['rotor_speed'] = tsr * params['wind_speed']
-    #     op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/tsr_test/naca0018_ws_' + str(wind) + '/'
-    #     twin_blades = [
-    #         # blades_joint_name, chord_length, height, offset, sa_radius, airfoil_dir, optimal_path_dir
-    #         pm.RotorBlade('blade_1_joint', 0.2, 2, 0, 1, params['airfoil_dir'], op_interp_dir),
-    #         pm.RotorBlade('blade_2_joint', 0.2, 2, np.pi, 1, params['airfoil_dir'], op_interp_dir)
-    #     ]
-    #     vpm_tb = pm.VawtPhysicalModel(twin_blades)
-    #     # gen plots of torque in function of rotor theta to check if there are any negative positions
-    #     vt = VawtTest(vpm_tb, params, 100)
-    #     vt.plot_torque_polar()
+    # 1 generate q-tables for given tsr but different wind speed
+    for wind in wind_list:
+        params['wind_speed'] = wind
+        params['results_dir_prepend'] = 'tsr_test/'
+        params['results_dir_append'] = '_ws_' + str(wind) + '/'
+        po = PitchOptimizer(params)
+        po.gensave_q_tables()
+    # 2 genereta optimal paths
+    for wind in wind_list:
+        op = OptimalPath('/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/tsr_test/naca0018_ws_' + str(wind) + '/')
+        # op = OptimalPath('/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/cp10_RL_5/')
+        op.find_optimum_params(save_plot=True)
+    # 3 plot torque polar
+    for wind in wind_list:
+        params['wind_speed'] = wind
+        params['rotor_speed'] = tsr * params['wind_speed']
+        op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/tsr_test/naca0018_ws_' + str(wind) + '/'
+        twin_blades = [
+            # blades_joint_name, chord_length, height, offset, sa_radius, airfoil_dir, optimal_path_dir
+            pm.RotorBlade('blade_1_joint', 0.2, 2, 0, 1, params['airfoil_dir'], op_interp_dir),
+            pm.RotorBlade('blade_2_joint', 0.2, 2, np.pi, 1, params['airfoil_dir'], op_interp_dir)
+        ]
+        vpm_tb = pm.VawtPhysicalModel(twin_blades)
+        # gen plots of torque in function of rotor theta to check if there are any negative positions
+        vt = VawtTest(vpm_tb, params, 100)
+        vt.plot_torque_polar()
     # 4 plot work
     for wind in wind_list:
         params['wind_speed'] = wind

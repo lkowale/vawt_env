@@ -1,5 +1,5 @@
 import learn.airfoil_dynamics.ct_plot.vawt_blade as vb
-import learn.RL.rl1_qtables as rl1
+import learn.RL.rl1_qtables_1 as rl1
 import learn.RL.rl3_run_game as rl3
 import pandas as pd
 from symfit import parameters, variables, sin, cos, Fit
