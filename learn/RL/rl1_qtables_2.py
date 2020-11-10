@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 
 class VawtRLEnvironment:
 
-    def __init__(self, blade, wind_direction, wind_speed, rotor_speed, theta_resolution, pitch_resolution,
+    def __init__(self, blade, wind_direction, wind_speed, tsr, theta_resolution, pitch_resolution,
                  pitch_change_cost_coef, pitch_change_width, steps=10000):
         # defines how far does the pitch can be changed in degrees , pitch will be allowed in collection (-pitch_change_width, pitch_change_width)
         self.pitch_change_width = pitch_change_width
@@ -35,8 +35,10 @@ class VawtRLEnvironment:
         self.steps = steps
         self.wind_direction = wind_direction
         self.wind_speed = wind_speed
-        self.rotor_speed = rotor_speed
+        self.tsr = tsr
         # current state of blade (theta, pitch)
+        # TSR = ωR/V∞
+        self.rotor_speed = self.tsr * self.wind_speed / self.blade.rotor_radius
         self.data = self.tf_data(self.wind_direction, self.wind_speed, self.rotor_speed, self.theta_resolution, self.pitch_resolution)
         self.theta_num = self.data.shape[0]
         self.pitch_num = self.data.shape[1]
@@ -106,10 +108,12 @@ def save_environment(env, filename):
     'blade_chord_length':env.blade.chord_length,
     'wind_direction':env.wind_direction,
     'wind_speed':env.wind_speed,
-    'rotor_speed':env.rotor_speed,
+    'tsr':env.tsr,
     'theta_resolution':env.theta_resolution,
     'pitch_resolution':env.pitch_resolution,
-    'steps':env.steps
+    'steps':env.steps,
+    'pitch_change_cost_coef':env.pitch_change_cost_coef,
+    'pitch_change_width':env.pitch_change_width
     }
 
     pd.DataFrame(dict, index=[0]).to_csv(filename)
@@ -127,13 +131,15 @@ def load_environment(filename):
     # create environment
     wind_direction = params['wind_direction']
     wind_speed = params['wind_speed']
-    rotor_speed = params['rotor_speed']
+    tsr = params['tsr']
     theta_resolution = params['theta_resolution']
     pitch_resolution = params['pitch_resolution']
     steps = params['steps']
-    env = VawtRLEnvironment(blade, wind_direction, wind_speed, rotor_speed, theta_resolution, pitch_resolution, steps=steps)
-    # env = VawtRLEnvironment(blade, wind_direction, wind_speed, rotor_speed, theta_resolution, pitch_resolution,
-    #                         pitch_change_cost_coef, pitch_change_width, steps=10000)
+    pitch_change_cost_coef = params['pitch_change_cost_coef']
+    pitch_change_width = params['pitch_change_width']
+    # env = VawtRLEnvironment(blade, wind_direction, wind_speed, rotor_speed, theta_resolution, pitch_resolution, steps=steps)
+    env = VawtRLEnvironment(blade, wind_direction, wind_speed, tsr, theta_resolution, pitch_resolution,
+                            pitch_change_cost_coef, pitch_change_width, steps=steps)
     return env
 
 
@@ -151,7 +157,9 @@ def eps_greedy_q_learning_with_table(env, num_episodes=500, display_plot=False, 
     max_pitch_change_angle = pitch_change_servo_speed * travel_time
     pitch_change_step = (((env.pitch_change_width * 2) / 360) * math.tau) / env.pitch_num
     max_pitch_change = int(max_pitch_change_angle / pitch_change_step)
-
+    # assure that there will be at least one step available
+    if max_pitch_change == 0:
+        max_pitch_change = 1
     # create r table of size (num of theta samples*num of pitch samples)xnumber of possible new pitch values
     q_table = np.empty((env.data.size, max_pitch_change * 2 + 1))
 
