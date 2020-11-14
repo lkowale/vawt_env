@@ -21,11 +21,24 @@ import matplotlib.pyplot as plt
 # substract cost of pitch change from reward
 
 
+def get_theta_range(theta_resolution, theta_width):
+    theta_range = [x * math.tau / 360 for x in range(-theta_width, theta_width, theta_resolution-1)]
+    # to be sure that theta_range ends with pi
+    theta_range.append(math.pi)
+    return list(theta_range)
+
+
+def get_pitch_range(pitch_resolution, pitch_width):
+    pitch_range = [x * math.tau / 360 for x in range(-pitch_width, pitch_width, pitch_resolution)]
+    return list(pitch_range)
+
+
 class VawtRLEnvironment:
 
     def __init__(self, blade, wind_direction, wind_speed, tsr, theta_resolution, pitch_resolution,
-                 pitch_change_cost_coef, pitch_change_width, steps=10000):
+                 pitch_change_cost_coef, pitch_change_width, theta_change_width=360, steps=10000):
         # defines how far does the pitch can be changed in degrees , pitch will be allowed in collection (-pitch_change_width, pitch_change_width)
+        self.theta_width = theta_change_width
         self.pitch_change_width = pitch_change_width
         # form reward will be substracted reward*pitch_change_cost_coef*action
         self.pitch_change_cost_coef = pitch_change_cost_coef
@@ -71,12 +84,11 @@ class VawtRLEnvironment:
         debug = None
         return self.position, reward, done, debug
 
-
     def tf_data(self, wind_direction, wind_speed, rotor_speed, theta_resolution, pitch_resolution):
 
         wind_vector = bc.get_wind_vector(wind_direction, wind_speed)
-        theta_range = [x * math.tau / 360 for x in range(-180, 180, theta_resolution)]
-        pitch_range = [x * math.tau / 360 for x in range(-self.pitch_change_width, self.pitch_change_width, pitch_resolution)]
+        theta_range = get_theta_range(theta_resolution, self.theta_width)
+        pitch_range = get_pitch_range(pitch_resolution, self.pitch_change_width)
         thetas = []
         for theta in theta_range:
             theta_ct_polar = [self.blade.get_tangential_force(wind_vector, rotor_speed, theta, pitch) for pitch in pitch_range]
@@ -160,6 +172,9 @@ def eps_greedy_q_learning_with_table(env, num_episodes=500, display_plot=False, 
     # assure that there will be at least one step available
     if max_pitch_change == 0:
         max_pitch_change = 1
+    # do not let the pitch to be big
+    if max_pitch_change > 5:
+        max_pitch_change = 5
     # create r table of size (num of theta samples*num of pitch samples)xnumber of possible new pitch values
     q_table = np.empty((env.data.size, max_pitch_change * 2 + 1))
 

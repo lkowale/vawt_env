@@ -49,7 +49,7 @@
       <child link="${blade_name}"/>
       <origin xyz="${shaft_radius + strut_depth} 0 0" rpy="0 0 0"/>
       <axis xyz="0 0 1" />
-      <limit effort="300" velocity="200" lower="-3.14" upper="3.14"/>
+      <limit effort="300" velocity="100" lower="-1.3" upper="1.3"/>
     </joint>
 
     <transmission name="${blade_name}_transmission">

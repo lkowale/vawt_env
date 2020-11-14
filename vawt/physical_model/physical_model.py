@@ -9,7 +9,7 @@ import learn.airfoil_dynamics.ct_plot.base_calculus as bc
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float32
 from std_msgs.msg import Float64
-from vawt.physical_model.pitch_optimizer.po3a_interpolate import OptimalPathInterpolate
+from vawt.physical_model.pitch_optimizer.po3a_interpolate_4d import OptimalPathInterpolate
 from gazebo_msgs.srv import ApplyBodyWrench
 from geometry_msgs.msg import Point, Wrench, Vector3
 import geometry_msgs
@@ -38,11 +38,12 @@ class RotorBlade:
         return self.get_tforce(wind_vec, rotor_speed, rotor_theta) * self.sa_radius
 
     # tsr, rotor position as theta, wind direction
-    def get_optimal_pitch(self, tsr, rotor_theta, wind_direction):
+    def get_optimal_pitch(self, wind_speed, tsr, rotor_theta, wind_direction):
         # get optimum pitch for current blade position
         blade_theta = rotor_theta + self.offset
         to_wind_theta = vec.normalize_angle(blade_theta - wind_direction)
-        return self.opi.get_optimal_pitch(tsr, to_wind_theta)
+        # get_optimal_pitch(self, wind_speed, tsr, theta):
+        return self.opi.get_optimal_pitch(wind_speed, tsr, to_wind_theta)
 
 
 class VawtPhysicalModel:
@@ -128,39 +129,42 @@ class VawtPhysicalModelROSinterface:
         self.vpm.wind_direction = data.data
 
     def step(self, d_time):
-        # update wind vector
-        self.vpm.wind_vec = self.vpm.get_wind_vector(self.vpm.wind_direction, self.vpm.wind_speed)
-        self.vpm.shaft_torque = self.vpm.get_shaft_torque()
-        # publish shaft torque
-        self.shaft_torque_publisher.publish(self.vpm.shaft_torque)
-        # use shaft torque to move gazebo model by calling gazebo service
-        body_name = 'vawt_1::main_shaft'
-        reference_frame = 'world'
-        reference_point = geometry_msgs.msg.Point(x=0, y=0, z=0)
-        wrench = geometry_msgs.msg.Wrench(force=geometry_msgs.msg.Vector3(x=0, y=0, z=0),
-                                          torque=geometry_msgs.msg.Vector3(x=0, y=0, z=self.vpm.shaft_torque))
-        start_time = rospy.Time(secs=0, nsecs=0)
-        duration = rospy.Duration(secs=d_time, nsecs=0)
-        self.apply_body_wrench(body_name, reference_frame, reference_point, wrench, start_time, duration)
+        # do not do anything unless wind speed is more than 3m/s
+        if self.vpm.wind_speed > 3:
+            # update wind vector
+            self.vpm.wind_vec = self.vpm.get_wind_vector(self.vpm.wind_direction, self.vpm.wind_speed)
+            self.vpm.shaft_torque = self.vpm.get_shaft_torque()
+            # publish shaft torque
+            self.shaft_torque_publisher.publish(self.vpm.shaft_torque)
+            # use shaft torque to move gazebo model by calling gazebo service
+            body_name = 'vawt_1::main_shaft'
+            reference_frame = 'world'
+            reference_point = geometry_msgs.msg.Point(x=0, y=0, z=0)
+            wrench = geometry_msgs.msg.Wrench(force=geometry_msgs.msg.Vector3(x=0, y=0, z=0),
+                                              torque=geometry_msgs.msg.Vector3(x=0, y=0, z=self.vpm.shaft_torque))
+            start_time = rospy.Time(secs=0, nsecs=0)
+            duration = rospy.Duration(secs=d_time, nsecs=0)
+            self.apply_body_wrench(body_name, reference_frame, reference_point, wrench, start_time, duration)
 
-        # publish blades commands
-        for ros_blade in self.ros_blades:
-            tsr = self.vpm.speed * ros_blade.blade.sa_radius / self.vpm.wind_speed
-            if tsr < 0.1:
-                tsr = 0.1
-            # get optimal pitch
-            op = ros_blade.blade.get_optimal_pitch(tsr, self.vpm.theta, self.vpm.wind_direction)
-            # translate it to joint position
-            pos_comm = op
-            ros_blade.publish_command(pos_comm)
+            # publish blades commands
+            for ros_blade in self.ros_blades:
+                tsr = self.vpm.speed * ros_blade.blade.sa_radius / self.vpm.wind_speed
+                if tsr < 0.1:
+                    tsr = 0.1
+                # get optimal pitch
+                op = ros_blade.blade.get_optimal_pitch(self.vpm.wind_speed, tsr, self.vpm.theta, self.vpm.wind_direction)
+                if op == 0:
+                    pass
+                # translate it to joint position
+                ros_blade.publish_command(op)
 
 
 # make it to be launched as ROS node
 if __name__ == '__main__':
-    # airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
-    # op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_RL_4/'
-    airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360'
-    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/cp10_RL_4/'
+    airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
+    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_m_7/'
+    # airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360'
+    # op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/cp10_RL_4/'
     twin_blades = [
         # chord_length, height, offset, sa_radius, airfoil_dir
         RotorBlade('blade_1_joint', 0.2, 2, 0, 1, airfoil_dir, op_interp_dir),

@@ -74,5 +74,5 @@ if __name__ == '__main__':
         # gen plots of torque in function of rotor theta to check if there are any negative positions
         vpt = VawtPowerTest(vpm_tb, params)
         # vt.plot_blades_op_tf()
-        vpt.plot_work(vpt.get_work())
+        vpt.plot_work(vpt.get_work_power())
     plt.show()
