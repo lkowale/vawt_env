@@ -2,10 +2,10 @@
 
   <!-- Load joint controller configurations from YAML file to parameter server -->
   <rosparam file="$(find vawt_1_control)/config/vawt_1_control.yaml" command="load"/>
-
+  <rosparam file="$(find vawt_1_control)/config/joint_limits.yaml" command="load"/>
   <!-- load the controllers -->
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-        output="screen" ns="/vawt_1" args="blade_1_position_controller blade_2_position_controller main_shaft_position_controller joint_state_controller"/>
+        output="screen" ns="/vawt_1" args="blade_1_joint_position_controller blade_2_joint_position_controller main_shaft_joint_position_controller joint_state_controller"/>
 <!--          output="screen" ns="/vawt_1" args="joint_state_controller"/> -->
 <!--    output="screen" ns="/vawt_1" args="blade_1_position_controller blade_2_position_controller joint_state_controller"/> -->
 

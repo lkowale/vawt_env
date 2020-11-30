@@ -40,12 +40,13 @@
   <!-- transmission -->
   <transmission name="main_shaft_joint_trans">
     <type>transmission_interface/SimpleTransmission</type>
-    <actuator name="main_shaft_motor">
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
     <joint name="main_shaft_joint">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
+    <actuator name="main_shaft_motor">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
   </transmission>
 
   <!-- main_shaft Link -->
