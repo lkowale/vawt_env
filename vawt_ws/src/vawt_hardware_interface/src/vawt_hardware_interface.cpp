@@ -52,22 +52,22 @@ namespace vawt_hardware_interface
 
             // Create position joint interface
             JointHandle jointPositionHandle(jointStateHandle, &joint_position_command_[i]);
-            JointLimits limits;
-            SoftJointLimits softLimits;
-            getJointLimits(joint_names_[i], nh_, limits);
-            PositionJointSoftLimitsHandle jointLimitsHandle(jointPositionHandle, limits, softLimits);
-            positionJointSoftLimitsInterface.registerHandle(jointLimitsHandle);
+//            JointLimits limits;
+//            SoftJointLimits softLimits;
+//            getJointLimits(joint_names_[i], nh_, limits);
+//            PositionJointSoftLimitsHandle jointLimitsHandle(jointPositionHandle, limits, softLimits);
+//            positionJointSoftLimitsInterface.registerHandle(jointLimitsHandle);
             position_joint_interface_.registerHandle(jointPositionHandle);
 
-            // Create effort joint interface
-            JointHandle jointEffortHandle(jointStateHandle, &joint_effort_command_[i]);
-            effort_joint_interface_.registerHandle(jointEffortHandle);
+//            // Create effort joint interface
+//            JointHandle jointEffortHandle(jointStateHandle, &joint_effort_command_[i]);
+//            effort_joint_interface_.registerHandle(jointEffortHandle);
         }
 
         registerInterface(&joint_state_interface_);
         registerInterface(&position_joint_interface_);
-        registerInterface(&effort_joint_interface_);
-        registerInterface(&positionJointSoftLimitsInterface);
+//        registerInterface(&effort_joint_interface_);
+//        registerInterface(&positionJointSoftLimitsInterface);
     }
 
     void VAWTHardwareInterface::update(const ros::TimerEvent& e) {
@@ -79,12 +79,14 @@ namespace vawt_hardware_interface
 
     void VAWTHardwareInterface::read() {
         for (int i = 0; i < num_joints_; i++) {
-            joint_position_[i] = servo_position_[i];
+//            joint_position_[i] = servo_position_[i];
+              joint_position_[i] = 0;
+         //   joint_position_[i] = sin(float(ros::Time::now().toSec()));
         }
     }
 
     void VAWTHardwareInterface::write(ros::Duration elapsed_time) {
-        positionJointSoftLimitsInterface.enforceLimits(elapsed_time);
+       // positionJointSoftLimitsInterface.enforceLimits(elapsed_time);
         for (int i = 0; i < num_joints_; i++) {
         /*
             std_msgs::Float32 msg;
@@ -93,7 +95,10 @@ namespace vawt_hardware_interface
             servo_position_[i] = command;
             command_publisher.publish(msg);
           */
-            ROS_INFO("Got %s joint_position_command_ %f joint_effort_command_[i] %f", joint_names_[i].c_str(), joint_position_command_[i],joint_effort_command_[i]);
+
+        float sum =  joint_position_[i] + joint_velocity_[i] + joint_effort_[i] + joint_position_command_[i] + joint_velocity_command_[i] + joint_effort_command_[i] + servo_position_[i];
+        if(sum !=0)
+            ROS_INFO("Got %s command %f joint_effort_command_[i] %f", joint_names_[i].c_str(), joint_position_command_[i],joint_effort_command_[i]);
         }
     }
 }

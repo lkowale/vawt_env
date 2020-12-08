@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Load the URDF into the ROS Parameter Server -->
+  <param name="robot_description"
+    command="$(find xacro)/xacro --inorder '$(find vawt_1)/urdf/vawt_1.xacro'" />
+
+
+  <!-- Show in Rviz  -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find vawt_hardware_interface)/launch/vawt_robot.rviz" required="true" />
+
+</launch>
+

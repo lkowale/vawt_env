@@ -1,15 +1,15 @@
-vawt_1:
+rrbot:
   # Publish all joint states -----------------------------------
   joint_state_controller:
     type: joint_state_controller/JointStateController
-    publish_rate: 50
-
+    publish_rate: 50  
+  
   # Position Controllers ---------------------------------------
-  blade_1_position_controller:
+  joint1_position_controller:
     type: effort_controllers/JointPositionController
-    joint: blade_1_joint
+    joint: joint1
     pid: {p: 100.0, i: 0.01, d: 10.0}
-  blade_2_position_controller:
+  joint2_position_controller:
     type: effort_controllers/JointPositionController
-    joint: blade_2_joint
+    joint: joint2
     pid: {p: 100.0, i: 0.01, d: 10.0}
