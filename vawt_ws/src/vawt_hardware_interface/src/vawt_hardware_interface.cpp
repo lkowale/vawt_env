@@ -17,10 +17,15 @@ namespace vawt_hardware_interface
         init();
         controller_manager_.reset(new controller_manager::ControllerManager(this, nh_));
         nh_.param("/vawt_1/hardware_interface/loop_hz", loop_hz_, 0.1);
+        //Run the control loop
         ros::Duration update_freq = ros::Duration(1.0/loop_hz_);
         non_realtime_loop_ = nh_.createTimer(update_freq, &VAWTHardwareInterface::update, this);
+//        non_realtime_loop_ = nh_.createTimer(0.01, &VAWTHardwareInterface::update, this);
+
         command_publisher = nh_.advertise<std_msgs::Float32>("servo_command", 100);
         ROS_INFO("Initialized VAWTHardwareInterface");
+
+
     }
 
     VAWTHardwareInterface::~VAWTHardwareInterface() {

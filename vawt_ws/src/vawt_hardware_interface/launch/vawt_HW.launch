@@ -1,0 +1,17 @@
+<launch>
+  <!-- Load the URDF into the ROS Parameter Server -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find vawt_1)/urdf/vawt_1.xacro'" />
+
+    <!-- ros_control vawt_1 launch file -->
+    <include file="$(find vawt_1_control)/launch/vawt_1_control.launch" />
+
+  <group ns="vawt_1">
+    <rosparam file="$(find vawt_hardware_interface)/config/hardware.yaml" command="load"/>
+
+    <node name="vawt_hardware_interface" pkg="vawt_hardware_interface" type="vawt_hardware_interface_node" output="screen"/>
+  </group>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find
+    vawt_1_control)/launch/vawt_1_control.rviz" required="true" />
+
+</launch>
