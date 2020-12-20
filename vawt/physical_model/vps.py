@@ -72,7 +72,7 @@ class VawtPhysicsSimulator:
         self.vpm.wind_direction = data.data
 
     def step(self, d_time):
-        # do not do anything unless wind speed is more than 3m/s
+        # calculate and send shaft torque and publish blades commands if wind speed 3m/s
         if self.vpm.wind_speed > 3:
             # update wind vector
             self.vpm.wind_vec = self.vpm.get_wind_vector(self.vpm.wind_direction, self.vpm.wind_speed)
@@ -88,18 +88,6 @@ class VawtPhysicsSimulator:
             start_time = rospy.Time(secs=0, nsecs=0)
             duration = rospy.Duration(secs=d_time, nsecs=0)
             self.apply_body_wrench(body_name, reference_frame, reference_point, wrench, start_time, duration)
-
-            # publish blades commands
-            for ros_blade in self.ros_blades:
-                tsr = self.vpm.speed * ros_blade.blade.sa_radius / self.vpm.wind_speed
-                if tsr < 0.1:
-                    tsr = 0.1
-                # get optimal pitch
-                op = ros_blade.blade.get_optimal_pitch(self.vpm.wind_speed, tsr, self.vpm.theta, self.vpm.wind_direction)
-                if op == 0:
-                    pass
-                # translate it to joint position
-                ros_blade.publish_command(op)
 
 
 # make it to be launched as ROS node

@@ -5,3 +5,6 @@ vawt_1:
        - blade_1_joint
        - blade_2_joint
        - main_shaft_joint
+     publishers_topics:
+       - /vawt_1/hardware/command_1
+       - /vawt_1/hardware/command_2

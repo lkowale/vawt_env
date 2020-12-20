@@ -16,6 +16,9 @@ from geometry_msgs.msg import Point, Wrench, Vector3
 import geometry_msgs
 import vec
 
+# // VAWT Optimal Pitch - it takes input as ros messages in topics : wind speed and direction and shaft position
+# and sends blade pitch optimal position commands to hardware interface
+
 
 class RotorBladeROSinterface:
 
@@ -67,17 +70,19 @@ class VawtOptimalController:
         if self.vpm.wind_speed > 3:
             # update wind vector
             self.vpm.wind_vec = self.vpm.get_wind_vector(self.vpm.wind_direction, self.vpm.wind_speed)
-            self.vpm.shaft_torque = self.vpm.get_shaft_torque()
 
             # publish blades commands
             for ros_blade in self.ros_blades:
                 tsr = self.vpm.speed * ros_blade.blade.sa_radius / self.vpm.wind_speed
-                if tsr < 0.1:
-                    tsr = 0.1
                 # get optimal pitch
-                op = ros_blade.blade.get_optimal_pitch(self.vpm.wind_speed, tsr, self.vpm.theta, self.vpm.wind_direction)
-                if op == 0:
-                    pass
+                if 6 < tsr:
+                    op = 0
+                else:
+                    if tsr < 0.1:
+                        tsr = 0.1
+                    op = ros_blade.blade.get_optimal_pitch(self.vpm.wind_speed, tsr, self.vpm.theta, self.vpm.wind_direction)
+                # if op == 0:
+                #     pass
                 # translate it to joint position
                 ros_blade.publish_command(op)
 

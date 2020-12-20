@@ -44,9 +44,14 @@ namespace vawt_hardware_interface
             ros::Timer non_realtime_loop_;
             ros::Duration control_period_;
             ros::Duration elapsed_time_;
-            ros::Publisher command_publisher;
+//            ros::Publisher command_publisher;
+            std::vector<ros::Publisher> command_publishers_;
+            ros::Subscriber shaft_pos_sub;
+            ros::Subscriber shaft_speed_sub;
             PositionJointInterface positionJointInterface;
             PositionJointSoftLimitsInterface positionJointSoftLimitsInterface;
+            void shaft_pos_sub_cb(const std_msgs::Float32::ConstPtr& msg);
+            void shaft_speed_sub_cb(const std_msgs::Float32::ConstPtr& msg);
             double loop_hz_;
             boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
             double p_error_, v_error_, e_error_;

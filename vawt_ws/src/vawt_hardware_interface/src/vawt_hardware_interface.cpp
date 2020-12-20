@@ -16,13 +16,12 @@ namespace vawt_hardware_interface
     VAWTHardwareInterface::VAWTHardwareInterface(ros::NodeHandle& nh) : nh_(nh) {
         init();
         controller_manager_.reset(new controller_manager::ControllerManager(this, nh_));
-        nh_.param("/vawt_1/hardware_interface/loop_hz", loop_hz_, 0.1);
+        nh_.param("hardware_interface/loop_hz", loop_hz_, 0.1);
         //Run the control loop
         ros::Duration update_freq = ros::Duration(1.0/loop_hz_);
         non_realtime_loop_ = nh_.createTimer(update_freq, &VAWTHardwareInterface::update, this);
 //        non_realtime_loop_ = nh_.createTimer(0.01, &VAWTHardwareInterface::update, this);
 
-        command_publisher = nh_.advertise<std_msgs::Float32>("servo_command", 100);
         ROS_INFO("Initialized VAWTHardwareInterface");
 
 
@@ -38,6 +37,15 @@ namespace vawt_hardware_interface
          //joint_names_="blade_1_joint blade_2_joint";
         num_joints_ = joint_names_.size();
         ROS_INFO("VAWTHardwareInterface initializer joints: %i",num_joints_);
+        // create subscribers and publishers
+
+        shaft_pos_sub = nh_.subscribe("hardware/shaft_position", 10, &VAWTHardwareInterface::shaft_pos_sub_cb, this);
+        shaft_speed_sub = nh_.subscribe("hardware/shaft_speed", 10, &VAWTHardwareInterface::shaft_speed_sub_cb, this);
+        std::vector<std::string> topic_names_;
+        nh_.getParam("/vawt_1/hardware_interface/publishers_topics", topic_names_);
+        for (int i = 0; i < topic_names_.size(); ++i)
+            command_publishers_.push_back(nh_.advertise<std_msgs::Float32>(topic_names_[i], 100));
+        //command_publisher = nh_.advertise<std_msgs::Float32>("hardware/servo_command", 100);
 
         // Resize vectors
         joint_position_.resize(num_joints_);
@@ -85,7 +93,7 @@ namespace vawt_hardware_interface
     void VAWTHardwareInterface::read() {
         for (int i = 0; i < num_joints_; i++) {
 //            joint_position_[i] = servo_position_[i];
-              joint_position_[i] = 0;
+//              joint_position_[i] = 1;
          //   joint_position_[i] = sin(float(ros::Time::now().toSec()));
         }
     }
@@ -101,9 +109,31 @@ namespace vawt_hardware_interface
             command_publisher.publish(msg);
           */
 
-        float sum =  joint_position_[i] + joint_velocity_[i] + joint_effort_[i] + joint_position_command_[i] + joint_velocity_command_[i] + joint_effort_command_[i] + servo_position_[i];
-        if(sum !=0)
-            ROS_INFO("Got %s command %f joint_effort_command_[i] %f", joint_names_[i].c_str(), joint_position_command_[i],joint_effort_command_[i]);
+//        float sum =  joint_position_[i] + joint_velocity_[i] + joint_effort_[i] + joint_position_command_[i] + joint_velocity_command_[i] + joint_effort_command_[i] + servo_position_[i];
+//        if(sum !=0)
+//            ROS_INFO("Got %s command %f joint_effort_command_[i] %f", joint_names_[i].c_str(), joint_position_command_[i],joint_effort_command_[i]);
+        }
+        for (int i = 0; i < command_publishers_.size(); i++) {
+            joint_position_[i] = joint_position_command_[i];
+            std_msgs::Float32 msg;
+            // inverse servo revolution direction
+            msg.data = joint_position_command_[i];
+            command_publishers_[i].publish(msg);
         }
     }
-}
+
+
+    void VAWTHardwareInterface::shaft_pos_sub_cb(const std_msgs::Float32::ConstPtr& msg){
+            // write shaft position
+            int shaft_index = num_joints_-1;
+            joint_position_[shaft_index] = msg->data;
+//            ROS_INFO("Got %s command %f ", joint_names_[shaft_index].c_str(), msg->data);
+    }
+
+    void VAWTHardwareInterface::shaft_speed_sub_cb(const std_msgs::Float32::ConstPtr& msg){
+            // write shaft position
+            int shaft_index = num_joints_-1;
+            joint_velocity_[shaft_index] = msg->data;
+//            ROS_INFO("Got %s command %f ", joint_names_[shaft_index].c_str(), msg->data);
+    }
+  }

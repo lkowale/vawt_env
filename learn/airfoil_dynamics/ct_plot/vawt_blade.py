@@ -147,7 +147,7 @@ class VawtBlade:
         return btla
 
     def _blade_chord_vec(self, blade_tangent_vector, pitch):
-        """"Calculate blade hord vector.=
+        """"Calculate blade chord vector.=
                pitch positive - rotates clockwise
                positive pitch - 'takes wind under the wing of ascending plane'
                positive pitch must be substracted from blade tangent to give actual blade chord vector
