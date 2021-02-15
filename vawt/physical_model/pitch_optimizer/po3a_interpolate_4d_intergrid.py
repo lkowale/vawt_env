@@ -12,6 +12,7 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from mpl_toolkits.mplot3d import Axes3D
 import learn.RL.rl1_qtables_2 as rl1
 from scipy.interpolate import LinearNDInterpolator
+from intergrid.intergrid import Intergrid
 
 
 class OptimalPathInterpolate:
@@ -69,7 +70,7 @@ class OptimalPathInterpolate:
     def get_interpolation(self, data):
         points = data[['wind_speed', 'tsr', 'theta']]
         values = data['pitch']
-        f = LinearNDInterpolator(points, values)
+        f = Intergrid(points, values)
         return f
 
     def get_optimal_pitch(self, wind_speed, tsr, theta):
@@ -83,9 +84,7 @@ if __name__ == '__main__':
     # opi.plot_grid(3.5)
     exec_time = time.time() - start_time
     print("Execution time {:2.2f} minutes ---".format(exec_time/60))
-
-    for i in range(10):
-        start_time = time.time()
-        a = opi.get_optimal_pitch(i + 3.1, i + 3.1, 0.1)
-        exec_time = time.time() - start_time
-        print("Execution time {} s".format(exec_time))
+    start_time = time.time()
+    a = opi.get_optimal_pitch(3.1, 3.1, 0.1)
+    exec_time = time.time() - start_time
+    print("Execution time {} s".format(exec_time))

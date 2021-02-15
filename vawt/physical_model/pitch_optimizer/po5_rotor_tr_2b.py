@@ -19,6 +19,7 @@ class TestBlade:
         self.opp = self.optimal_pitch_polar(self.parameters['wind_speed'], tsr, self.rot_blade, self.rotor_thetas, self.parameters['wind_direction'])
         self.btf = self.blade_forces_polar(self.opp, self.rot_blade, self.parameters['rotor_speed'], self.parameters['wind_speed'],
                                   self.parameters['wind_direction'])
+
     # return optimal pitch path for given tsr, blade, list_of_thetas as a lst of pairs (theta,pitch)
     def optimal_pitch_polar(self, wind_speed, tsr, blade, rotor_thetas, wind_direction):
         opp = [(rotor_theta, blade.get_optimal_pitch(wind_speed, tsr, rotor_theta, wind_direction)) for rotor_theta in rotor_thetas]
@@ -36,8 +37,8 @@ class TestBlade:
         return tf_df
 
     def work_per_revolution(self, blade_forces_polar):
-        d_alpha = math.tau/self.rotor_thetas.size
-        work = d_alpha * self.rot_blade.sa_radius * blade_forces_polar['tf'].sum()
+        length = 2 * math.pi * self.rot_blade.sa_radius / self.rotor_thetas.size
+        work = length * blade_forces_polar['tf'].sum()
         return work
 
 

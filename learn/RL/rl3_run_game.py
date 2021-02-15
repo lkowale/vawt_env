@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import learn.airfoil_dynamics.ct_plot.vawt_blade as vb
-import learn.RL.rl1_qtables as rl1
+import learn.RL.rl1_qtables_2 as rl1
 
 
 class RunGame:

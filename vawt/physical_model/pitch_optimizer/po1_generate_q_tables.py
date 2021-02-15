@@ -43,11 +43,17 @@ class PitchOptimizer:
         env_params_file = base_file_path + '_env_params.csv'
         if not os.path.exists(folder_name):
             os.makedirs(folder_name)
-        # set environment
+        # set environment another version
         rl_environment = rl_q.VawtRLEnvironment(self.blade, self.wind_direction, wind_speed, tsr, self.theta_resolution,
                     self.pitch_resolution, self.pitch_change_cost_coef, self.pitch_change_width)
+        # # set environment earlier version without change cost and servo speed
+        # rl_environment = rl_q.VawtRLEnvironment(self.blade, self.wind_direction, wind_speed, tsr, self.theta_resolution,
+        #             self.pitch_resolution)
         # save environment
         rl_q.save_environment(rl_environment, env_params_file)
+        # save tangential force dataframe
+        file_name = base_file_path + "_ct.csv"
+        rl_environment.data.to_csv(file_name)
         # get RL occupation/coverage dataframe and save plot of coverage + tangent coeef
         file_name = base_file_path + ".png"
         q_df, coverage_df = rl_q.eps_greedy_q_learning_with_table(rl_environment, 20, save_file_name=file_name)
@@ -69,16 +75,17 @@ if __name__ == '__main__':
         # 'airfoil_dir': '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360',
         # 'results_dir_prepend': 'tsr_test/',
         'results_dir_prepend': '',
-        'results_dir_append': '_m_7/',
+        'results_dir_append': '_10/',
         'blade_shaft_dist': 1,
         'blade_chord_length': 0.2,
         'pitch_resolution': 2,
         'theta_resolution': 4,
-        # 'wind_speeds': np.arange(3, 8),
-        'wind_speeds': np.arange(8, 12),
+        'wind_speeds': np.arange(2, 5),
+        # 'wind_speeds': np.arange(8, 12),
         # # 'wind_speeds': np.arange(10, 11),
-        'tsrs': [0.1, 0.3, 0.5, 1, 1.5, 2, 3, 4, 5, 6],
-        # 'tsrs': [6, 7],
+        # 'tsrs': [0.1, 0.3, 0.5, 1, 1.5, 2, 3, 4, 5, 6],
+        'tsrs': [0.1, 0.3, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7],
+        # 'tsrs': [3, 4],
         'wind_direction': 0,
         'pitch_change_cost_coef': 0.05,
         'pitch_change_width': 70

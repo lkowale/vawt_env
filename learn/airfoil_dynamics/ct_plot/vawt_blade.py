@@ -70,6 +70,44 @@ class VawtBlade:
         casting_angle = self._rel_tang_angle(rel_wind, blade_tangent_vector)
         return tangential_force(fl, fd, casting_angle)
 
+    def get_normal_force(self, wind_vector, rotor_speed, theta, pitch):
+        """"Calculate normal force. Chord length is used instead of area.
+
+        Parameters
+        ----------
+        wind_vector : vec
+            vector describes wind speed and direction
+        rotor_speed : float
+            rotor angular speed in rad/s
+        theta : float
+            position of blade relative to rotor 0 position in rad
+        pitch : float
+            angle between blade chord line and tangent line in rad
+        Returns
+        -------
+        ft : float
+            tangential force
+        """
+        # relative wind vector
+        try:
+            blade_speed = rotor_speed * self.rotor_radius
+        except TypeError:
+            pass
+        blade_tangent_line_angle = self._blade_tangent_line_angle(theta)
+
+        blade_tangent_vector = vec.Vector2(r=blade_speed, theta=blade_tangent_line_angle)
+        rel_wind = relative_wind(wind_vector, blade_tangent_vector)
+
+        re_number = reynolds_number(rel_wind.r, self.chord_length, kinematic_viscosity)
+        blade_chord_vector = self._blade_chord_vec(blade_tangent_vector, pitch)
+        aoa_rad, aoa_360 = self._angle_of_attack(rel_wind, blade_chord_vector)
+        cl, cd = self.get_coeffs(aoa_360, re_number)
+        fl = lift_force(air_density, rel_wind.r, self.chord_length, cl)
+        fd = drag_force(air_density, rel_wind.r, self.chord_length, cd)
+        # casting angle is between rel_wind and blade tangent
+        casting_angle = self._rel_tang_angle(rel_wind, blade_tangent_vector)
+        return normal_force(fl, fd, casting_angle)
+
     def get_tangential_force_talker(self, wind_vector, rotor_speed, theta, pitch):
         """"Calculate tangential force. Chord length is used instead of area.
 

@@ -72,28 +72,27 @@ class VawtPhysicsSimulator:
         self.vpm.wind_direction = data.data
 
     def step(self, d_time):
-        # calculate and send shaft torque and publish blades commands if wind speed 3m/s
-        if self.vpm.wind_speed > 3:
-            # update wind vector
-            self.vpm.wind_vec = self.vpm.get_wind_vector(self.vpm.wind_direction, self.vpm.wind_speed)
-            self.vpm.shaft_torque = self.vpm.get_shaft_torque()
-            # publish shaft torque
-            self.shaft_torque_publisher.publish(self.vpm.shaft_torque)
-            # use shaft torque to move gazebo model by calling gazebo service
-            body_name = 'vawt_1::main_shaft'
-            reference_frame = 'world'
-            reference_point = geometry_msgs.msg.Point(x=0, y=0, z=0)
-            wrench = geometry_msgs.msg.Wrench(force=geometry_msgs.msg.Vector3(x=0, y=0, z=0),
-                                              torque=geometry_msgs.msg.Vector3(x=0, y=0, z=self.vpm.shaft_torque))
-            start_time = rospy.Time(secs=0, nsecs=0)
-            duration = rospy.Duration(secs=d_time, nsecs=0)
-            self.apply_body_wrench(body_name, reference_frame, reference_point, wrench, start_time, duration)
+
+        # update wind vector
+        self.vpm.wind_vec = self.vpm.get_wind_vector(self.vpm.wind_direction, self.vpm.wind_speed)
+        self.vpm.shaft_torque = self.vpm.get_shaft_torque()
+        # publish shaft torque
+        self.shaft_torque_publisher.publish(self.vpm.shaft_torque)
+        # use shaft torque to move gazebo model by calling gazebo service
+        body_name = 'vawt_1::main_shaft'
+        reference_frame = 'world'
+        reference_point = geometry_msgs.msg.Point(x=0, y=0, z=0)
+        wrench = geometry_msgs.msg.Wrench(force=geometry_msgs.msg.Vector3(x=0, y=0, z=0),
+                                          torque=geometry_msgs.msg.Vector3(x=0, y=0, z=self.vpm.shaft_torque))
+        start_time = rospy.Time(secs=0, nsecs=0)
+        duration = rospy.Duration(secs=d_time, nsecs=0)
+        self.apply_body_wrench(body_name, reference_frame, reference_point, wrench, start_time, duration)
 
 
 # make it to be launched as ROS node
 if __name__ == '__main__':
     airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
-    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_m_7/'
+    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_11/'
     # airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360'
     # op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/cp10_RL_4/'
     twin_blades = [

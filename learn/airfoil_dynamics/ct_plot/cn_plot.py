@@ -33,7 +33,7 @@ pitch_range = [x * math.tau / 360 for x in range(-180, 180, 5)]
 
 thetas = []
 for theta in theta_range:
-    theta_ct_polar = [blade.get_tangential_force(wind_vector, rotor_speed, theta, pitch) for pitch in pitch_range]
+    theta_ct_polar = [blade.get_normal_force(wind_vector, rotor_speed, theta, pitch) for pitch in pitch_range]
     thetas.append(theta_ct_polar)
 
 df = pd.DataFrame(thetas, index=theta_range, columns=pitch_range)
@@ -41,7 +41,7 @@ df = pd.DataFrame(thetas, index=theta_range, columns=pitch_range)
 xx, yy = np.meshgrid(theta_range, pitch_range)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ax.title.set_text('tangential force')
+ax.title.set_text('normal force')
 # ax.set_xlabel('x')
 # ax.set_ylabel('y')
 ax.set_xlabel('theta')

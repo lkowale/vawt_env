@@ -36,11 +36,11 @@ def get_pitch_range(pitch_resolution, pitch_width):
 class VawtRLEnvironment:
 
     def __init__(self, blade, wind_direction, wind_speed, tsr, theta_resolution, pitch_resolution,
-                 pitch_change_cost_coef, pitch_change_width, theta_change_width=360, steps=10000):
+                 pitch_change_cost_coef, pitch_change_width, theta_change_width=180, steps=10000):
         # defines how far does the pitch can be changed in degrees , pitch will be allowed in collection (-pitch_change_width, pitch_change_width)
         self.theta_width = theta_change_width
         self.pitch_change_width = pitch_change_width
-        # form reward will be substracted reward*pitch_change_cost_coef*action
+        # from reward will be substracted reward*pitch_change_cost_coef*action
         self.pitch_change_cost_coef = pitch_change_cost_coef
         self.pitch_resolution = pitch_resolution
         self.theta_resolution = theta_resolution
@@ -68,9 +68,9 @@ class VawtRLEnvironment:
         self.current_step += 1
         try:
             reward = self.data.iloc[self.position[0], self.position[1]]
-            # lower the reward if blade is in downstream
-            if self.position[0] < self.theta_num / 4 or self.position[0] > self.theta_num * 3 / 4:
-                reward = reward * 0.7
+            # # lower the reward if blade is in downstream
+            # if self.position[0] < self.theta_num / 4 or self.position[0] > self.theta_num * 3 / 4:
+            #     reward = reward * 0.7
             # from reward substract cost of pitch change
             reward = reward - reward * self.pitch_change_cost_coef * abs(action)
 
@@ -162,19 +162,20 @@ def eps_greedy_q_learning_with_table(env, num_episodes=500, display_plot=False, 
     lr = 0.8
     # with decay 0.9985 eps gets ~0.24 after 500 episodes, with 0.999 0.30
     decay_factor = 0.999
-    # pitch change speed is about 3rd/s
-    pitch_change_servo_speed = 6
-    rotor_theta_step = math.tau / env.theta_num
-    travel_time = rotor_theta_step / env.rotor_speed
-    max_pitch_change_angle = pitch_change_servo_speed * travel_time
-    pitch_change_step = (((env.pitch_change_width * 2) / 360) * math.tau) / env.pitch_num
-    max_pitch_change = int(max_pitch_change_angle / pitch_change_step)
-    # assure that there will be at least one step available
-    if max_pitch_change == 0:
-        max_pitch_change = 1
-    # do not let the pitch to be big
-    if max_pitch_change > 5:
-        max_pitch_change = 5
+    # # pitch change speed is about 3rd/s
+    # pitch_change_servo_speed = 6
+    # rotor_theta_step = math.tau / env.theta_num
+    # travel_time = rotor_theta_step / env.rotor_speed
+    # max_pitch_change_angle = pitch_change_servo_speed * travel_time
+    # pitch_change_step = (((env.pitch_change_width * 2) / 360) * math.tau) / env.pitch_num
+    # max_pitch_change = int(max_pitch_change_angle / pitch_change_step)
+    # # assure that there will be at least one step available
+    # if max_pitch_change == 0:
+    #     max_pitch_change = 1
+    # # do not let the pitch to be big
+    # if max_pitch_change > 5:
+    #     max_pitch_change = 5
+    max_pitch_change = 5
     # create r table of size (num of theta samples*num of pitch samples)xnumber of possible new pitch values
     q_table = np.empty((env.data.size, max_pitch_change * 2 + 1))
 

@@ -15,6 +15,9 @@ from gazebo_msgs.srv import ApplyBodyWrench
 from geometry_msgs.msg import Point, Wrench, Vector3
 import geometry_msgs
 import vec
+import time
+import random
+import cProfile
 
 # // VAWT Optimal Pitch - it takes input as ros messages in topics : wind speed and direction and shaft position
 # and sends blade pitch optimal position commands to hardware interface
@@ -36,6 +39,7 @@ class RotorBladeROSinterface:
 class VawtOptimalController:
 
     def __init__(self, vpm):
+        self.latency_ms = 40
         self.vpm = vpm
         self.ros_blades = [RotorBladeROSinterface(blade) for blade in self.vpm.blades]
 
@@ -67,7 +71,9 @@ class VawtOptimalController:
 
     def step(self, d_time):
         # do not do anything unless wind speed is more than 3m/s
-        if self.vpm.wind_speed > 3:
+        # do not do anything unless wind speed is more than 2m/s
+        # self.vpm.wind_speed = 3
+        if self.vpm.wind_speed > 2:
             # update wind vector
             self.vpm.wind_vec = self.vpm.get_wind_vector(self.vpm.wind_direction, self.vpm.wind_speed)
 
@@ -80,7 +86,17 @@ class VawtOptimalController:
                 else:
                     if tsr < 0.1:
                         tsr = 0.1
+                    # measure interpolation time
+                    start = time.time()
+                    # theta_offset = self.latency_ms * self.vpm.speed / 1000
+                    # theta = self.vpm.theta + theta_offset
+                    # theta = vec.normalize_angle(theta)
+                    # # # generating random values to test interpolation time
+                    # self.vpm.theta = self.vpm.theta + random.randrange(0, 3) + random.random()
+                    # tsr = tsr + random.randrange(0, 4)
+                    # self.vpm.wind_speed = self.vpm.wind_speed + random.randrange(0, 4)
                     op = ros_blade.blade.get_optimal_pitch(self.vpm.wind_speed, tsr, self.vpm.theta, self.vpm.wind_direction)
+                    print(f'Time: {time.time() - start}')
                 # if op == 0:
                 #     pass
                 # translate it to joint position
@@ -90,7 +106,8 @@ class VawtOptimalController:
 # make it to be launched as ROS node
 if __name__ == '__main__':
     airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
-    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_m_7/'
+    # op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_m_8_mod/'
+    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_11/'
     # airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360'
     # op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/cp10_RL_4/'
     twin_blades = [
@@ -101,7 +118,7 @@ if __name__ == '__main__':
 
     r_vpm = VawtOptimalController(VawtPhysicalModel(twin_blades))
     rospy.init_node('VawtOptimalController', anonymous=True)
-    rate = rospy.Rate(50)
+    rate = rospy.Rate(40)
     while not rospy.is_shutdown():
-        r_vpm.step(0.02)
+        r_vpm.step(0.025)
         rate.sleep()
