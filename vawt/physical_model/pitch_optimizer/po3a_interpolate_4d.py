@@ -75,11 +75,14 @@ class OptimalPathInterpolate:
     def get_optimal_pitch(self, wind_speed, tsr, theta):
         return float(self.interpolate((wind_speed, tsr, theta)))
 
+    def save_csv(self, filename):
+        self.data.to_csv(self.data_dir + filename, index=False)
+
 
 if __name__ == '__main__':
 
     start_time = time.time()
-    opi = OptimalPathInterpolate('/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_m_7/')
+    opi = OptimalPathInterpolate('/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_11/')
     # opi.plot_grid(3.5)
     exec_time = time.time() - start_time
     print("Execution time {:2.2f} minutes ---".format(exec_time/60))
@@ -89,3 +92,4 @@ if __name__ == '__main__':
         a = opi.get_optimal_pitch(i + 3.1, i + 3.1, 0.1)
         exec_time = time.time() - start_time
         print("Execution time {} s".format(exec_time))
+
