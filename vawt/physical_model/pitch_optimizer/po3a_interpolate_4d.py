@@ -78,6 +78,23 @@ class OptimalPathInterpolate:
     def save_csv(self, filename):
         self.data.to_csv(self.data_dir + filename, index=False)
 
+    def indexes_to_radians(self):
+        # for every optimal path in folder
+        op_df_list = []
+        for op_file in glob.glob(self.data_dir + "*_op.csv"):
+            # load op form csv
+            op_df = pd.read_csv(op_file, index_col=0)
+            # recreate environment on base of params file
+            params_file = op_file[:-7] + '_env_params.csv'
+            # TODO do not load the whole environment - it takes lot of time, load just parameters instead
+            params = pd.read_csv(params_file)
+            params = params.iloc[0]
+            # translate indexes of optimal path to radians using cover_table
+            op_df['theta'] = [rl1.get_theta_range(params['theta_resolution'], 180)[i] for i in op_df['theta']]
+            op_df['pitch'] = [rl1.get_pitch_range(params['pitch_resolution'], params['pitch_change_width'])[i] for i in op_df['pitch']]
+            new_filename = op_file[:-4] + "_rad" + op_file[-4:]
+            op_df.to_csv(new_filename, index=False)
+
 
 if __name__ == '__main__':
 
