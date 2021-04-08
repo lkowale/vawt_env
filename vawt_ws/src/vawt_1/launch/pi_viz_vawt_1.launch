@@ -1,14 +1,14 @@
 <launch>
     <arg name="model" />
+<param name="robot_description" command="$(find xacro)/xacro --inorder '$(find vawt_1)/urdf/vawt_1.xacro'" />
 <!--
-<param name="robot_description" textfile="$(find
-vawt_1)/urdf/vawt_1.urdf" />
--->
-    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find vawt_1)/urdf/vawt_1.xacro'" />
 <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui"
 type="joint_state_publisher_gui" />
+-->
 <node name="robot_state_publisher" pkg="robot_state_publisher"
 type="robot_state_publisher" />
 <node name="rviz" pkg="rviz" type="rviz" args="-d $(find
 vawt_1)/vawt_1.rviz" required="true" />
+    <node pkg="visualize" name="wind_marker" type="wind_marker.py"/>
+    <node pkg="visualize" name="pitch_error_" type="pitch_error_.py"/>
 </launch>

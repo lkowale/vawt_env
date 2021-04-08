@@ -47,6 +47,9 @@ namespace vawt_hardware_interface
             command_publishers_.push_back(nh_.advertise<std_msgs::Float32>(topic_names_[i], 100));
         //command_publisher = nh_.advertise<std_msgs::Float32>("hardware/servo_command", 100);
 
+        blade_position_subscribers_.push_back(nh_.subscribe("/vawt_1/hardware/blade_1_pos", 10, &VAWTHardwareInterface::blade_position_sub_1_cb, this));
+        blade_position_subscribers_.push_back(nh_.subscribe("/vawt_1/hardware/blade_2_pos", 10, &VAWTHardwareInterface::blade_position_sub_2_cb, this));
+
         // Resize vectors
         joint_position_.resize(num_joints_);
         joint_velocity_.resize(num_joints_);
@@ -114,11 +117,11 @@ namespace vawt_hardware_interface
 //            ROS_INFO("Got %s command %f joint_effort_command_[i] %f", joint_names_[i].c_str(), joint_position_command_[i],joint_effort_command_[i]);
         }
         for (int i = 0; i < command_publishers_.size(); i++) {
-            joint_position_[i] = joint_position_command_[i];
-            std_msgs::Float32 msg;
-            // inverse servo revolution direction
-            msg.data = joint_position_command_[i];
-            command_publishers_[i].publish(msg);
+//            joint_position_[i] = joint_position_command_[i];
+//            std_msgs::Float32 msg;
+//            // inverse servo revolution direction
+//            msg.data = joint_position_command_[i];
+//            command_publishers_[i].publish(msg);
         }
     }
 
@@ -135,5 +138,15 @@ namespace vawt_hardware_interface
             int shaft_index = num_joints_-1;
             joint_velocity_[shaft_index] = msg->data;
 //            ROS_INFO("Got %s command %f ", joint_names_[shaft_index].c_str(), msg->data);
+    }
+    void VAWTHardwareInterface::blade_position_sub_1_cb(const std_msgs::Float32::ConstPtr& msg){
+            // write blade position
+            int blade_index = 0;
+            joint_position_[blade_index] = msg->data;
+    }
+    void VAWTHardwareInterface::blade_position_sub_2_cb(const std_msgs::Float32::ConstPtr& msg){
+            // write blade position
+            int blade_index = 1;
+            joint_position_[blade_index] = msg->data;
     }
   }

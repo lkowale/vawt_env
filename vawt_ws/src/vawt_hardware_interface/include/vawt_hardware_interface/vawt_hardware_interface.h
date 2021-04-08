@@ -48,10 +48,13 @@ namespace vawt_hardware_interface
             std::vector<ros::Publisher> command_publishers_;
             ros::Subscriber shaft_pos_sub;
             ros::Subscriber shaft_speed_sub;
+            std::vector<ros::Subscriber> blade_position_subscribers_;
             PositionJointInterface positionJointInterface;
             PositionJointSoftLimitsInterface positionJointSoftLimitsInterface;
             void shaft_pos_sub_cb(const std_msgs::Float32::ConstPtr& msg);
             void shaft_speed_sub_cb(const std_msgs::Float32::ConstPtr& msg);
+            void blade_position_sub_1_cb(const std_msgs::Float32::ConstPtr& msg);
+            void blade_position_sub_2_cb(const std_msgs::Float32::ConstPtr& msg);
             double loop_hz_;
             boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
             double p_error_, v_error_, e_error_;
