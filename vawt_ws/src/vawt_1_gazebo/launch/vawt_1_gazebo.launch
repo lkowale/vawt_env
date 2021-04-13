@@ -27,7 +27,7 @@
 
   <!-- ros_control vawt_1 launch file -->
   <include file="$(find vawt_1_control)/launch/vawt_1_control.launch" />
-
+  <node pkg="visualize" name="wind_marker" type="wind_marker.py"/>
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find
   vawt_1_control)/launch/vawt_1_control.rviz" required="true" />
 </launch>

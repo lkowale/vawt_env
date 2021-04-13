@@ -107,7 +107,7 @@ class VawtOptimalController:
 if __name__ == '__main__':
     airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/naca0018_360'
     # op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_m_8_mod/'
-    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_11/'
+    op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/naca0018_10_m/'
     # airfoil_dir = '/home/aa/vawt_env/learn/AeroDyn polars/cp10_360'
     # op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/cp10_RL_4/'
     twin_blades = [
