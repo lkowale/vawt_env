@@ -112,8 +112,8 @@ if __name__ == '__main__':
     # op_interp_dir = '/home/aa/vawt_env/vawt/physical_model/pitch_optimizer/exps/cp10_RL_4/'
     twin_blades = [
         # chord_length, height, offset, sa_radius, airfoil_dir
-        RotorBlade('blade_1_joint', 0.2, 2, 0, 1, airfoil_dir, op_interp_dir),
-        RotorBlade('blade_2_joint', 0.2, 2, math.pi, 1, airfoil_dir, op_interp_dir)
+        RotorBlade('blade_1_joint', 0.2, 2, 0, 2, airfoil_dir, op_interp_dir),
+        RotorBlade('blade_2_joint', 0.2, 2, math.pi, 2, airfoil_dir, op_interp_dir)
     ]
 
     r_vpm = VawtOptimalController(VawtPhysicalModel(twin_blades))
