@@ -1,5 +1,0 @@
-/in package directory create /launch directory and  .launch file in it
-roslaunch image_publisher cameras_params.launch
-roslaunch image_publisher image_pub.launch
-roslaunch vawt_1 load_parameters_file.launch
-roslaunch vawt_1 view_demo_vawt_1.launch

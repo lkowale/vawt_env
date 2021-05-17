@@ -1,6 +1,0 @@
-http://wiki.ros.org/ROS/Tutorials/CreatingPackage
-
-cd ~/vawt_env/src/
-catkin_create_pkg sensors_simulator std_msgs rospy roscpp
-cd ~/vawt_env/
-catkin_make
